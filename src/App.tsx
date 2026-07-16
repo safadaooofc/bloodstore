@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { StoreProvider, useStore } from './context/StoreContext';
 import { SecurityGuard } from './services/SecurityGuard';
-import { CyberpunkBackground } from './components/ui/CyberpunkBackground';
+import { CleanBackground } from './components/ui/CleanBackground';
+import { DiscordLoginModal } from './components/auth/DiscordLoginModal';
+import { UserAccountModal } from './components/auth/UserAccountModal';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { ProductsSection } from './components/products/ProductsSection';
@@ -17,6 +19,8 @@ import './index.css';
 const MainContent: React.FC = () => {
   const { activeView, setActiveView, isAdminLoggedIn, logoutAdmin } = useStore();
   const [adminLoginOpen, setAdminLoginOpen] = useState(false);
+  const [discordAuthOpen, setDiscordAuthOpen] = useState(false);
+  const [userAccountOpen, setUserAccountOpen] = useState(false);
 
   // Initialize DevTools Guard & check secret /admin route
   useEffect(() => {
@@ -70,13 +74,15 @@ const MainContent: React.FC = () => {
   }, [isAdminLoggedIn, logoutAdmin, setActiveView]);
 
   return (
-    <div className="min-h-screen flex flex-col justify-between relative selection:bg-[#ff003c] selection:text-white">
-      {/* Animated Cyberpunk Grid & Particles Background */}
-      <CyberpunkBackground />
-      <div className="scanlines" />
+    <div className="min-h-screen flex flex-col justify-between relative selection:bg-[#4f46e5] selection:text-white">
+      {/* Clean Modern Ambient Background */}
+      <CleanBackground />
 
-      {/* Main Navigation (No Admin Button visible for normal users) */}
-      <Navbar />
+      {/* Main Navigation */}
+      <Navbar 
+        onOpenAuthModal={() => setDiscordAuthOpen(true)} 
+        onOpenAccountModal={() => setUserAccountOpen(true)}
+      />
 
       {/* Main Content Area based on View state */}
       <main className="flex-1 w-full relative z-10">
@@ -121,6 +127,18 @@ const MainContent: React.FC = () => {
         onClose={() => {
           setAdminLoginOpen(false);
         }} 
+      />
+
+      {/* Customer Discord Login Modal */}
+      <DiscordLoginModal
+        isOpen={discordAuthOpen}
+        onClose={() => setDiscordAuthOpen(false)}
+      />
+
+      {/* Customer Orders & Account Dashboard Modal */}
+      <UserAccountModal
+        isOpen={userAccountOpen}
+        onClose={() => setUserAccountOpen(false)}
       />
     </div>
   );

@@ -11,6 +11,7 @@ export interface Product {
   badge?: 'MAIS VENDIDO' | 'ENTREGA IMEDIATA' | 'PROMOÇÃO' | 'EM ALTA' | 'EXCLUSIVO';
   status: 'DISPONÍVEL' | 'PROMOÇÃO' | 'ESGOTADO';
   discordUrl?: string; // se vazio, usa o globalDiscordUrl da loja
+  stockItems?: string[]; // Lista de itens (logins, contas, chaves, links) em estoque para entrega automática
 }
 
 export interface TermItem {
@@ -30,14 +31,25 @@ export interface SecurityLogEntry {
   details: string;
 }
 
+export interface DiscordUser {
+  id: string;
+  username: string;
+  globalName: string;
+  avatarUrl: string;
+  email?: string;
+  joinedAt?: string;
+}
+
 export interface StoreConfig {
   storeName: string;
   bannerTitle: string;
   bannerSubtitle: string;
   announcementBanner: string;
   globalDiscordUrl: string;
+  discordWebhookUrl: string;
+  pixKey: string; // Chave PIX oficial da loja
   adminPassword: string;
-  accentColor: string; // Ex: #ff003c
+  accentColor: string; // Ex: #4f46e5
   stats: {
     totalSales: number;
     activeUsers: number;
@@ -58,5 +70,31 @@ export interface Coupon {
   description: string;
 }
 
-export type ViewTab = 'home' | 'terms' | 'admin' | 'checkout';
-export type AdminTab = 'overview' | 'products' | 'terms' | 'settings' | 'security';
+export interface OrderItem {
+  productId: string;
+  productName: string;
+  price: number;
+  quantity: number;
+  deliveredItems?: string[]; // Contas/Chaves entregues para este item após aprovação
+}
+
+export interface Order {
+  id: string; // Ex: PED-1049
+  createdAt: string;
+  buyerDiscordNick: string;
+  buyerEmail?: string;
+  buyerAvatarUrl?: string;
+  items: OrderItem[];
+  total: number;
+  subtotal: number;
+  discountAmount?: number;
+  couponCode?: string;
+  paymentMethod: string;
+  pixKeyUsed?: string;
+  status: 'pending' | 'approved' | 'rejected';
+  deliveredAt?: string;
+  emailSent?: boolean;
+}
+
+export type ViewTab = 'home' | 'terms' | 'admin' | 'checkout' | 'orders';
+export type AdminTab = 'overview' | 'products' | 'stock' | 'orders' | 'terms' | 'settings' | 'security';

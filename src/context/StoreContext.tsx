@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { Product, TermItem, StoreConfig, ViewTab, AdminTab, CartItem, Coupon } from '../types/store';
+import type { Product, TermItem, StoreConfig, ViewTab, AdminTab, CartItem, Coupon, DiscordUser, Order } from '../types/store';
+import { sendDiscordDeliveryNotification } from '../services/discordWebhook';
 
 interface StoreContextType {
   products: Product[];
@@ -8,6 +9,7 @@ interface StoreContextType {
   cart: CartItem[];
   coupons: Coupon[];
   appliedCoupon: Coupon | null;
+  orders: Order[];
   isAdminLoggedIn: boolean;
   activeView: ViewTab;
   adminTab: AdminTab;
@@ -28,6 +30,7 @@ interface StoreContextType {
   addProduct: (product: Omit<Product, 'id'>) => void;
   updateProduct: (id: string, product: Partial<Product>) => void;
   deleteProduct: (id: string) => void;
+  updateProductStock: (productId: string, stockItems: string[]) => void;
   addTerm: (term: Omit<TermItem, 'id'>) => void;
   updateTerm: (id: string, term: Partial<TermItem>) => void;
   deleteTerm: (id: string) => void;
@@ -35,6 +38,12 @@ interface StoreContextType {
   resetToDefault: () => void;
   exportBackup: () => string;
   importBackup: (jsonString: string) => boolean;
+  currentUser: DiscordUser | null;
+  loginDiscord: (user: DiscordUser) => void;
+  logoutDiscord: () => void;
+  createOrder: (orderData: Omit<Order, 'id' | 'createdAt' | 'status'>) => Order;
+  approveOrder: (orderId: string) => Promise<{ success: boolean; message: string }>;
+  rejectOrder: (orderId: string) => void;
 }
 
 const DEFAULT_COUPONS: Coupon[] = [
@@ -49,8 +58,10 @@ const DEFAULT_CONFIG: StoreConfig = {
   bannerSubtitle: 'Produtos digitais, otimizações e contas exclusivas com entrega rápida via Discord e garantia total.',
   announcementBanner: '⚡ BLOOD NOTICIA: ENTREGA EM ATÉ 24H VIA DISCORD // PAGAMENTO VIA PIX // ATENDIMENTO PRIORITÁRIO PARA BOOSTERS ⚡',
   globalDiscordUrl: 'https://discord.gg/Gvbg5WYPBP',
+  discordWebhookUrl: 'https://discord.com/api/webhooks/1527312578898956409/u0DEYy-liGUA9w-e6fHjwlHNPDQmPzXoPR5lu5_jUGhcGheslAmBY2YDWOQF7k58O3Xm',
+  pixKey: '14f35f4f-9255-496b-bd0e-2fce7d60af92',
   adminPassword: 'admin',
-  accentColor: '#ff003c',
+  accentColor: '#4f46e5',
   stats: {
     totalSales: 4890,
     activeUsers: 1420,
@@ -76,7 +87,12 @@ const DEFAULT_PRODUCTS: Product[] = [
     ],
     imageUrl: 'https://images.unsplash.com/photo-1614680376593-902f749f7ffc?q=80&w=800&auto=format&fit=crop',
     badge: 'MAIS VENDIDO',
-    status: 'DISPONÍVEL'
+    status: 'DISPONÍVEL',
+    stockItems: [
+      'Robux-Pass #1049 - Código de Ativação / Acesso: RBX-9988-1122',
+      'Robux-Pass #1050 - Código de Ativação / Acesso: RBX-7766-3344',
+      'Robux-Pass #1051 - Código de Ativação / Acesso: RBX-5544-2211'
+    ]
   },
   {
     id: 'prod-2',
@@ -94,7 +110,12 @@ const DEFAULT_PRODUCTS: Product[] = [
     ],
     imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=800&auto=format&fit=crop',
     badge: 'ENTREGA IMEDIATA',
-    status: 'DISPONÍVEL'
+    status: 'DISPONÍVEL',
+    stockItems: [
+      'Login: blood_acc18_01 | Senha: pass#18v_alpha | E-mail: rec1@bloodstore.gg',
+      'Login: blood_acc18_02 | Senha: pass#18v_beta | E-mail: rec2@bloodstore.gg',
+      'Login: blood_acc18_03 | Senha: pass#18v_gamma | E-mail: rec3@bloodstore.gg'
+    ]
   },
   {
     id: 'prod-3',
@@ -112,7 +133,11 @@ const DEFAULT_PRODUCTS: Product[] = [
     ],
     imageUrl: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=800&auto=format&fit=crop',
     badge: 'PROMOÇÃO',
-    status: 'PROMOÇÃO'
+    status: 'PROMOÇÃO',
+    stockItems: [
+      'CD-KEY Steam Global: 88XX-99YY-11ZZ-BLOOD',
+      'CD-KEY Steam Global: 77AA-33BB-55CC-BLOOD'
+    ]
   },
   {
     id: 'prod-4',
@@ -130,7 +155,10 @@ const DEFAULT_PRODUCTS: Product[] = [
     ],
     imageUrl: 'https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=800&auto=format&fit=crop',
     badge: 'EM ALTA',
-    status: 'DISPONÍVEL'
+    status: 'DISPONÍVEL',
+    stockItems: [
+      'Voucher Trade MM2 #01 - Entrar em contato com bot de trade @BloodTradeBot com código MM2-ALPHA'
+    ]
   },
   {
     id: 'prod-5',
@@ -148,7 +176,11 @@ const DEFAULT_PRODUCTS: Product[] = [
     ],
     imageUrl: 'https://images.unsplash.com/photo-1627856013091-fed6e4e30025?q=80&w=800&auto=format&fit=crop',
     badge: 'MAIS VENDIDO',
-    status: 'DISPONÍVEL'
+    status: 'DISPONÍVEL',
+    stockItems: [
+      'Conta Microsoft MC #1 | Email: mc_alpha@outlook.com | Senha: Mc#Blood2026',
+      'Conta Microsoft MC #2 | Email: mc_beta@outlook.com | Senha: Mc#Blood2026'
+    ]
   },
   {
     id: 'prod-6',
@@ -166,7 +198,10 @@ const DEFAULT_PRODUCTS: Product[] = [
     ],
     imageUrl: 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?q=80&w=800&auto=format&fit=crop',
     badge: 'EXCLUSIVO',
-    status: 'DISPONÍVEL'
+    status: 'DISPONÍVEL',
+    stockItems: [
+      'Voucher Agendamento Técnico #01 - Acesse o canal #agendar-boost no Discord com o código BOOST-01'
+    ]
   },
   {
     id: 'prod-7',
@@ -184,7 +219,11 @@ const DEFAULT_PRODUCTS: Product[] = [
     ],
     imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop',
     badge: 'PROMOÇÃO',
-    status: 'PROMOÇÃO'
+    status: 'PROMOÇÃO',
+    stockItems: [
+      'Token/Gift Nitro #1: https://discord.gift/XyZ987AbC123Blood',
+      'Token/Gift Nitro #2: https://discord.gift/QWe456RtY789Blood'
+    ]
   },
   {
     id: 'prod-8',
@@ -202,7 +241,10 @@ const DEFAULT_PRODUCTS: Product[] = [
     ],
     imageUrl: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800&auto=format&fit=crop',
     badge: 'ENTREGA IMEDIATA',
-    status: 'DISPONÍVEL'
+    status: 'DISPONÍVEL',
+    stockItems: [
+      'Voucher Painel de SMM #01 - Crédito de R$ 19,90 liberado no painel automático'
+    ]
   }
 ];
 
@@ -210,7 +252,7 @@ const DEFAULT_TERMS: TermItem[] = [
   {
     id: 'term-1',
     title: 'Forma de pagamento',
-    content: 'Apenas PIX. Nossa chave de pagamento e QRCode são fornecidos exclusivamente no momento do fechamento do ticket em nosso servidor do Discord.',
+    content: 'Apenas PIX. Nossa chave de pagamento e QRCode são fornecidos exclusivamente no momento do fechamento do ticket em nosso servidor do Discord ou no sistema automático.',
     category: 'PAGAMENTO',
     isImportant: true
   },
@@ -271,7 +313,26 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [config, setConfig] = useState<StoreConfig>(() => {
     const saved = localStorage.getItem('bloodstore_config');
-    return saved ? JSON.parse(saved) : DEFAULT_CONFIG;
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      return {
+        ...DEFAULT_CONFIG,
+        ...parsed,
+        discordWebhookUrl: parsed.discordWebhookUrl || DEFAULT_CONFIG.discordWebhookUrl,
+        pixKey: parsed.pixKey || DEFAULT_CONFIG.pixKey
+      };
+    }
+    return DEFAULT_CONFIG;
+  });
+
+  const [currentUser, setCurrentUser] = useState<DiscordUser | null>(() => {
+    const saved = localStorage.getItem('bloodstore_discord_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+
+  const [orders, setOrders] = useState<Order[]>(() => {
+    const saved = localStorage.getItem('bloodstore_orders');
+    return saved ? JSON.parse(saved) : [];
   });
 
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState<boolean>(() => {
@@ -306,6 +367,27 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     localStorage.setItem('bloodstore_cart', JSON.stringify(cart));
   }, [cart]);
+
+  useEffect(() => {
+    localStorage.setItem('bloodstore_orders', JSON.stringify(orders));
+  }, [orders]);
+
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem('bloodstore_discord_user', JSON.stringify(currentUser));
+    } else {
+      localStorage.removeItem('bloodstore_discord_user');
+    }
+  }, [currentUser]);
+
+  const loginDiscord = (user: DiscordUser) => {
+    setCurrentUser(user);
+  };
+
+  const logoutDiscord = () => {
+    setCurrentUser(null);
+    localStorage.removeItem('bloodstore_discord_user');
+  };
 
   const addToCart = (product: Product, quantity = 1) => {
     setCart(prev => {
@@ -372,7 +454,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const addProduct = (newProd: Omit<Product, 'id'>) => {
     const id = `prod-${Date.now()}`;
-    setProducts(prev => [ { ...newProd, id }, ...prev ]);
+    setProducts(prev => [ { ...newProd, id, stockItems: newProd.stockItems || [] }, ...prev ]);
   };
 
   const updateProduct = (id: string, updated: Partial<Product>) => {
@@ -381,6 +463,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const deleteProduct = (id: string) => {
     setProducts(prev => prev.filter(p => p.id !== id));
+  };
+
+  const updateProductStock = (productId: string, stockItems: string[]) => {
+    setProducts(prev => prev.map(p => p.id === productId ? { ...p, stockItems } : p));
   };
 
   const addTerm = (newTerm: Omit<TermItem, 'id'>) => {
@@ -404,9 +490,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setProducts(DEFAULT_PRODUCTS);
     setTerms(DEFAULT_TERMS);
     setConfig(DEFAULT_CONFIG);
+    setOrders([]);
     localStorage.removeItem('bloodstore_products');
     localStorage.removeItem('bloodstore_terms');
     localStorage.removeItem('bloodstore_config');
+    localStorage.removeItem('bloodstore_orders');
+    localStorage.removeItem('bloodstore_discord_user');
+    setCurrentUser(null);
   };
 
   const exportBackup = (): string => {
@@ -414,6 +504,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       products,
       terms,
       config,
+      orders,
       exportDate: new Date().toISOString()
     };
     return JSON.stringify(data, null, 2);
@@ -431,11 +522,87 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (data.config && typeof data.config === 'object') {
         setConfig(data.config);
       }
+      if (data.orders && Array.isArray(data.orders)) {
+        setOrders(data.orders);
+      }
       return true;
     } catch (e) {
       console.error('Falha ao importar backup JSON', e);
       return false;
     }
+  };
+
+  const createOrder = (orderData: Omit<Order, 'id' | 'createdAt' | 'status'>): Order => {
+    const id = `PED-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newOrder: Order = {
+      ...orderData,
+      id,
+      createdAt: new Date().toISOString(),
+      status: 'pending'
+    };
+    setOrders(prev => [newOrder, ...prev]);
+    return newOrder;
+  };
+
+  const approveOrder = async (orderId: string): Promise<{ success: boolean; message: string }> => {
+    const targetOrder = orders.find(o => o.id === orderId);
+    if (!targetOrder) {
+      return { success: false, message: 'Pedido não encontrado.' };
+    }
+
+    if (targetOrder.status === 'approved') {
+      return { success: false, message: 'O pedido já está aprovado.' };
+    }
+
+    // Processar entrega automática retirando do estoque (stockItems)
+    const updatedProducts = [...products];
+    const updatedItems = targetOrder.items.map(item => {
+      const productIndex = updatedProducts.findIndex(p => p.id === item.productId);
+      if (productIndex !== -1) {
+        const prod = updatedProducts[productIndex];
+        const stock = prod.stockItems || [];
+        const delivered: string[] = [];
+        
+        for (let i = 0; i < item.quantity; i++) {
+          if (stock.length > 0) {
+            delivered.push(stock.shift()!);
+          } else {
+            delivered.push(`[ENTREGA MANUAL VIA DISCORD] - Item aguardando reposição de estoque.`);
+          }
+        }
+        updatedProducts[productIndex] = { ...prod, stockItems: stock };
+        return { ...item, deliveredItems: delivered };
+      }
+      return item;
+    });
+
+    setProducts(updatedProducts);
+
+    const approvedOrder: Order = {
+      ...targetOrder,
+      items: updatedItems,
+      status: 'approved',
+      deliveredAt: new Date().toISOString(),
+      emailSent: !!targetOrder.buyerEmail
+    };
+
+    setOrders(prev => prev.map(o => o.id === orderId ? approvedOrder : o));
+
+    // Disparar Webhook no Discord informando aprovação e entrega automática
+    try {
+      await sendDiscordDeliveryNotification(approvedOrder, config.discordWebhookUrl);
+    } catch (err) {
+      console.error('Erro ao enviar notificação de entrega no Discord:', err);
+    }
+
+    return { 
+      success: true, 
+      message: `Pedido #${approvedOrder.id} APROVADO com sucesso! ${approvedOrder.buyerEmail ? `E-mail de entrega disparado para ${approvedOrder.buyerEmail}` : 'Estoque entregue no painel do usuário.'}` 
+    };
+  };
+
+  const rejectOrder = (orderId: string) => {
+    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'rejected' } : o));
   };
 
   return (
@@ -446,6 +613,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       cart,
       coupons,
       appliedCoupon,
+      orders,
       isAdminLoggedIn,
       activeView,
       adminTab,
@@ -466,13 +634,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       addProduct,
       updateProduct,
       deleteProduct,
+      updateProductStock,
       addTerm,
       updateTerm,
       deleteTerm,
       updateConfig,
       resetToDefault,
       exportBackup,
-      importBackup
+      importBackup,
+      currentUser,
+      loginDiscord,
+      logoutDiscord,
+      createOrder,
+      approveOrder,
+      rejectOrder
     }}>
       {children}
     </StoreContext.Provider>
