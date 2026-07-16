@@ -38,9 +38,6 @@ export const Navbar = ({ onOpenAdmin }) => {
           >
             <i className="fa-brands fa-discord"></i> Entrar no Discord
           </a>
-          <button onClick={onOpenAdmin} className="btn-admin-nav" title="Acessar Painel de Administração">
-            <i className="fa-solid fa-shield-halved text-red"></i> Painel Admin
-          </button>
         </div>
       </div>
     </header>

@@ -2,19 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { StoreProvider } from './context/StoreContext';
 import { StoreFront } from './pages/StoreFront';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { CheckoutPage } from './pages/CheckoutPage';
 import './index.css';
 
 export default function App() {
   const [currentRoute, setCurrentRoute] = useState(() => {
-    return window.location.hash === '#/admin' || window.location.pathname.startsWith('/admin')
-      ? 'admin'
-      : 'store';
+    const hash = window.location.hash;
+    const path = window.location.pathname;
+    if (hash.startsWith('#/staff') || path.startsWith('/staff')) return 'staff';
+    if (hash.startsWith('#/checkout') || path.startsWith('/checkout')) return 'checkout';
+    return 'store';
   });
 
   useEffect(() => {
     const handleHashChange = () => {
-      if (window.location.hash === '#/admin') {
-        setCurrentRoute('admin');
+      const hash = window.location.hash;
+      if (hash.startsWith('#/staff')) {
+        setCurrentRoute('staff');
+      } else if (hash.startsWith('#/checkout')) {
+        setCurrentRoute('checkout');
       } else {
         setCurrentRoute('store');
       }
@@ -24,9 +30,9 @@ export default function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const navigateToAdmin = () => {
-    window.location.hash = '#/admin';
-    setCurrentRoute('admin');
+  const navigateToStaff = () => {
+    window.location.hash = '#/staff';
+    setCurrentRoute('staff');
   };
 
   const navigateToStore = () => {
@@ -34,13 +40,22 @@ export default function App() {
     setCurrentRoute('store');
   };
 
+  const navigateToCheckout = (prod) => {
+    window.location.hash = `#/checkout?id=${prod.id}`;
+    setCurrentRoute('checkout');
+  };
+
   return (
     <StoreProvider>
       <div className="app-main-wrap">
-        {currentRoute === 'admin' ? (
+        {currentRoute === 'staff' && (
           <AdminDashboard onExitAdmin={navigateToStore} />
-        ) : (
-          <StoreFront onOpenAdmin={navigateToAdmin} />
+        )}
+        {currentRoute === 'checkout' && (
+          <CheckoutPage onBackToStore={navigateToStore} />
+        )}
+        {currentRoute === 'store' && (
+          <StoreFront onOpenAdmin={navigateToStaff} onOpenCheckout={navigateToCheckout} />
         )}
       </div>
     </StoreProvider>
