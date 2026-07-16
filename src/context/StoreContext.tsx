@@ -61,7 +61,7 @@ const DEFAULT_CONFIG: StoreConfig = {
   discordWebhookUrl: 'https://discord.com/api/webhooks/1527312578898956409/u0DEYy-liGUA9w-e6fHjwlHNPDQmPzXoPR5lu5_jUGhcGheslAmBY2YDWOQF7k58O3Xm',
   pixKey: '14f35f4f-9255-496b-bd0e-2fce7d60af92',
   adminPassword: 'admin',
-  accentColor: '#4f46e5',
+  accentColor: '#ff003c',
   stats: {
     totalSales: 4890,
     activeUsers: 1420,

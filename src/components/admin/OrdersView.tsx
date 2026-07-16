@@ -36,10 +36,10 @@ export const OrdersView: React.FC = () => {
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Header Banner */}
-      <div className="hud-card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-l-4 border-l-[#4f46e5]">
+      <div className="hud-card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-l-4 border-l-[#ff003c]">
         <div>
           <h2 className="text-xl font-bold font-display text-white flex items-center gap-2.5">
-            <Send className="w-6 h-6 text-[#4f46e5]" />
+            <Send className="w-6 h-6 text-[#ff003c]" />
             <span>Vendas & Aprovação de Entrega Automática</span>
           </h2>
           <p className="text-xs text-slate-400 mt-1">
@@ -52,7 +52,7 @@ export const OrdersView: React.FC = () => {
           <button
             onClick={() => setFilter('all')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-              filter === 'all' ? 'bg-[#4f46e5] text-white shadow' : 'text-slate-400 hover:text-white'
+              filter === 'all' ? 'bg-[#ff003c] text-white shadow' : 'text-slate-400 hover:text-white'
             }`}
           >
             Todos ({orders.length})
@@ -133,7 +133,7 @@ export const OrdersView: React.FC = () => {
                       </div>
                       <div className="text-xs text-slate-400 mt-1 flex flex-wrap items-center gap-3">
                         <span className="flex items-center gap-1.5 text-white">
-                          <User className="w-3.5 h-3.5 text-[#4f46e5]" />
+                          <User className="w-3.5 h-3.5 text-[#ff003c]" />
                           <strong>{order.buyerDiscordNick}</strong>
                         </span>
                         {order.buyerEmail && (
@@ -181,7 +181,7 @@ export const OrdersView: React.FC = () => {
                 {/* Items and Delivery Summary */}
                 <div className="mt-4 pt-2 space-y-3">
                   <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                    <ShoppingBag className="w-3.5 h-3.5 text-[#4f46e5]" />
+                    <ShoppingBag className="w-3.5 h-3.5 text-[#ff003c]" />
                     <span>Itens do Pedido</span>
                   </h4>
 

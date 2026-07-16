@@ -1,19 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 :root {
-  --color-bg: #090d16;
-  --color-bg-secondary: #0f172a;
-  --color-bg-tertiary: #1e293b;
-  --color-neon-red: #4f46e5; /* Aliased to Clean Indigo Blue */
-  --color-neon-red-hover: #4338ca;
-  --color-neon-red-glow: rgba(79, 70, 229, 0.25);
-  --color-neon-red-faint: rgba(79, 70, 229, 0.08);
-  --color-neon-cyan: #3b82f6; /* Aliased to Clean Blue */
-  --color-neon-yellow: #10b981; /* Aliased to Emerald */
+  --color-bg: #090a0f;
+  --color-bg-secondary: #0f1017;
+  --color-bg-tertiary: #161824;
+  --color-neon-red: #ff003c;
+  --color-neon-red-hover: #d90033;
+  --color-neon-red-glow: rgba(255, 0, 60, 0.3);
+  --color-neon-red-faint: rgba(255, 0, 60, 0.1);
+  --color-neon-cyan: #ff2a5f;
+  --color-neon-yellow: #10b981;
   --color-text-main: #f8fafc;
   --color-text-muted: #94a3b8;
   --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-hover: rgba(255, 255, 255, 0.2);
+  --color-border-hover: rgba(255, 0, 60, 0.35);
   --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
@@ -41,10 +41,10 @@ html, body {
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #090a0f;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #252838;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
@@ -55,8 +55,8 @@ html, body {
 .cyber-grid-bg {
   background-color: var(--color-bg);
   background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    linear-gradient(rgba(255, 0, 60, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 0, 60, 0.03) 1px, transparent 1px);
   background-size: 40px 40px;
   background-position: center center;
 }
@@ -68,10 +68,10 @@ html, body {
 
 /* Glow effects -> clean soft shadows */
 .neon-glow {
-  box-shadow: 0 4px 20px -2px rgba(79, 70, 229, 0.25);
+  box-shadow: 0 4px 20px -2px rgba(255, 0, 60, 0.35);
 }
 .neon-glow-lg {
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.35), 0 0 24px rgba(79, 70, 229, 0.15);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.35), 0 0 24px rgba(255, 0, 60, 0.25);
 }
 .neon-glow-text {
   text-shadow: none;
@@ -84,26 +84,26 @@ html, body {
 }
 .neon-border:hover {
   border-color: var(--color-neon-red);
-  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.2);
+  box-shadow: 0 4px 16px rgba(255, 0, 60, 0.25);
 }
 
 /* HUD Corners & Cards -> Clean Soft Rounded Cards */
 .hud-card {
   position: relative;
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(15, 16, 24, 0.82);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.35);
 }
 .hud-card::before, .hud-card::after {
   display: none;
 }
 .hud-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(99, 102, 241, 0.35);
-  box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.4), 0 0 20px rgba(79, 70, 229, 0.12);
+  border-color: rgba(255, 0, 60, 0.4);
+  box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.45), 0 0 20px rgba(255, 0, 60, 0.15);
 }
 
 /* Buttons -> Clean, Professional, Rounded */
@@ -123,14 +123,14 @@ html, body {
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+  box-shadow: 0 4px 14px rgba(255, 0, 60, 0.35);
   text-decoration: none;
 }
 .btn-cyber:hover {
   background: var(--color-neon-red-hover);
   border-color: var(--color-neon-red-hover);
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(79, 70, 229, 0.45);
+  box-shadow: 0 6px 20px rgba(255, 0, 60, 0.5);
 }
 .btn-cyber:active {
   transform: translateY(0);
@@ -162,8 +162,8 @@ html, body {
 
 /* Animations */
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35); }
-  50% { box-shadow: 0 6px 24px rgba(79, 70, 229, 0.6); }
+  0%, 100% { box-shadow: 0 4px 14px rgba(255, 0, 60, 0.35); }
+  50% { box-shadow: 0 6px 24px rgba(255, 0, 60, 0.65); }
 }
 .animate-pulse-glow {
   animation: pulse-glow 3s infinite ease-in-out;
@@ -503,13 +503,13 @@ html, body {
   transition: all 0.3s ease;
 }
 .badge-card:hover {
-  border-color: rgba(99, 102, 241, 0.4);
+  border-color: rgba(255, 0, 60, 0.4);
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
 }
 .badge-icon {
   padding: 0.6rem;
-  background: rgba(79, 70, 229, 0.15);
+  background: rgba(255, 0, 60, 0.15);
   color: var(--color-neon-red);
   border-radius: 10px;
   display: flex;
@@ -601,7 +601,7 @@ html, body {
 }
 .search-input:focus {
   border-color: var(--color-neon-red);
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25);
+  box-shadow: 0 0 0 3px rgba(255, 0, 60, 0.25);
 }
 .search-icon-pos {
   position: absolute;
@@ -647,7 +647,7 @@ html, body {
   background: var(--color-neon-red);
   color: #ffffff;
   border: 1px solid var(--color-neon-red);
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+  box-shadow: 0 4px 12px rgba(255, 0, 60, 0.35);
 }
 .tag-btn.inactive {
   background: rgba(30, 41, 59, 0.75);
@@ -676,7 +676,7 @@ html, body {
 
 .product-card {
   position: relative;
-  background: rgba(15, 23, 42, 0.75);
+  background: rgba(15, 16, 24, 0.82);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 18px;
@@ -690,8 +690,8 @@ html, body {
 }
 .product-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(99, 102, 241, 0.4);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 0, 60, 0.4);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
 }
 .product-img-wrapper {
   position: relative;

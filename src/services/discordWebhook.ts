@@ -92,7 +92,7 @@ export async function sendDiscordPurchaseNotification(params: PurchaseNotificati
         {
           title: `🛍️ Novo Pedido ${params.orderId ? `[#${params.orderId}]` : ''} Registrado!`,
           description: `Um novo pedido foi finalizado na **${params.storeName}** e está aguardando aprovação/liberação do estoque no Painel ou Discord.`,
-          color: 5197801, // Indigo #4f46e5
+          color: 16711740, // Red #ff003c
           fields: fields,
           timestamp: new Date().toISOString(),
           footer: {

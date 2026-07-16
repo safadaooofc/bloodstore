@@ -37,12 +37,12 @@ export const UserAccountModal: React.FC<UserAccountModalProps> = ({ isOpen, onCl
             <img
               src={currentUser.avatarUrl}
               alt={currentUser.username}
-              className="w-11 h-11 rounded-full border-2 border-[#5865F2] object-cover bg-slate-800"
+              className="w-11 h-11 rounded-full border-2 border-[#ff003c] object-cover bg-slate-800"
             />
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-lg font-bold text-white tracking-tight">{currentUser.globalName}</h3>
-                <span className="px-2 py-0.5 rounded-full bg-[#5865F2]/20 border border-[#5865F2]/40 text-[#5865F2] text-[10px] font-bold font-mono uppercase">
+                <span className="px-2 py-0.5 rounded-full bg-[#ff003c]/20 border border-[#ff003c]/40 text-[#ff003c] text-[10px] font-bold font-mono uppercase">
                   CONTA DISCORD VERIFICADA
                 </span>
               </div>
@@ -74,9 +74,9 @@ export const UserAccountModal: React.FC<UserAccountModalProps> = ({ isOpen, onCl
 
         {/* Body content */}
         <div className="p-6 overflow-y-auto space-y-6 flex-1">
-          <div className="p-4 bg-indigo-950/40 border border-indigo-500/30 rounded-xl flex items-start gap-3">
-            <Package className="w-5 h-5 text-indigo-400 flex-shrink-0 mt-0.5" />
-            <div className="text-xs text-indigo-200 leading-relaxed">
+          <div className="p-4 bg-red-950/30 border border-red-500/30 rounded-xl flex items-start gap-3">
+            <Package className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+            <div className="text-xs text-red-100 leading-relaxed">
               <strong>Painel de Meus Produtos e Entregas:</strong> Assim que sua compra for aprovada pela equipe da Blood Store no Discord ou PIX, seus produtos (logins, senhas, chaves de ativação) serão liberados no estoque e exibidos automaticamente abaixo para você copiar.
             </div>
           </div>
@@ -205,7 +205,7 @@ export const UserAccountModal: React.FC<UserAccountModalProps> = ({ isOpen, onCl
         {/* Footer info */}
         <div className="px-6 py-4 bg-[#1e293b]/60 border-t border-white/10 flex items-center justify-between text-xs text-slate-400 flex-shrink-0">
           <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#5865F2]" />
+            <ShieldCheck className="w-4 h-4 text-[#ff003c]" />
             <span>Sistema seguro de entrega automática Blood Store</span>
           </div>
           <button

@@ -74,7 +74,7 @@ const MainContent: React.FC = () => {
   }, [isAdminLoggedIn, logoutAdmin, setActiveView]);
 
   return (
-    <div className="min-h-screen flex flex-col justify-between relative selection:bg-[#4f46e5] selection:text-white">
+    <div className="min-h-screen flex flex-col justify-between relative selection:bg-[#ff003c] selection:text-white">
       {/* Clean Modern Ambient Background */}
       <CleanBackground />
 

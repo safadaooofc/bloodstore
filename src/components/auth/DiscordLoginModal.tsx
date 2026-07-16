@@ -24,7 +24,6 @@ export const DiscordLoginModal: React.FC<DiscordLoginModalProps> = ({ isOpen, on
       return;
     }
 
-    // Generate a consistent clean profile based on username input
     const avatarIndices = ['0', '1', '2', '3', '4', '5'];
     const charCodeSum = cleanUser.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
     const avatarIndex = avatarIndices[charCodeSum % avatarIndices.length];
@@ -56,15 +55,15 @@ export const DiscordLoginModal: React.FC<DiscordLoginModalProps> = ({ isOpen, on
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fadeIn">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
       <div 
-        className="relative w-full max-w-md bg-[#0f172a] border border-white/10 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+        className="relative w-full max-w-md bg-[#0f0e14] border border-[#ff003c]/40 rounded-2xl shadow-2xl overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Header */}
-        <div className="px-6 py-5 bg-[#1e293b]/60 border-b border-white/10 flex items-center justify-between">
+        <div className="px-6 py-5 bg-[#16141e] border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#5865F2]/20 border border-[#5865F2]/40 flex items-center justify-center text-[#5865F2]">
+            <div className="w-8 h-8 rounded-lg bg-[#ff003c]/20 border border-[#ff003c]/40 flex items-center justify-center text-[#ff003c]">
               <UserCheck className="w-4 h-4" />
             </div>
             <div>
@@ -100,7 +99,7 @@ export const DiscordLoginModal: React.FC<DiscordLoginModalProps> = ({ isOpen, on
                 placeholder="Ex: lucas.gamer ou Lucas#1234"
                 value={usernameInput}
                 onChange={(e) => setUsernameInput(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-[#1e293b]/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:border-[#5865F2] transition-colors"
+                className="w-full px-3.5 py-2.5 bg-[#16141e] border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-[#ff003c] transition-colors"
               />
             </div>
 
@@ -113,13 +112,13 @@ export const DiscordLoginModal: React.FC<DiscordLoginModalProps> = ({ isOpen, on
                 placeholder="Para envio de recibos (ex: lucas@email.com)"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-[#1e293b]/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:border-[#5865F2] transition-colors"
+                className="w-full px-3.5 py-2.5 bg-[#16141e] border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-[#ff003c] transition-colors"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full py-3 px-4 bg-[#5865F2] hover:bg-[#4752C4] text-white font-semibold text-sm rounded-xl shadow-lg shadow-[#5865F2]/25 transition-all flex items-center justify-center gap-2"
+              className="w-full py-3 px-4 bg-[#ff003c] hover:bg-[#d90033] text-white font-semibold text-sm rounded-xl shadow-lg shadow-[#ff003c]/25 transition-all flex items-center justify-center gap-2"
             >
               <span>Conectar Conta Discord</span>
               <ArrowRight className="w-4 h-4" />
@@ -127,41 +126,41 @@ export const DiscordLoginModal: React.FC<DiscordLoginModalProps> = ({ isOpen, on
           </form>
 
           {/* Quick Demo Accounts */}
-          <div className="pt-4 border-t border-slate-800">
+          <div className="pt-4 border-t border-white/10">
             <div className="flex items-center gap-1.5 text-xs font-medium text-slate-400 mb-3">
-              <Sparkles className="w-3.5 h-3.5 text-[#5865F2]" />
+              <Sparkles className="w-3.5 h-3.5 text-[#ff003c]" />
               <span>Ou escolha um perfil rápido para teste:</span>
             </div>
 
             <div className="grid grid-cols-2 gap-2.5">
               <button
                 type="button"
-                onClick={() => handleQuickDemoLogin('kiover.dev', 'Kiover VIP', 'kiover@bloodstore.dev', 1)}
-                className="p-2.5 bg-[#1e293b]/50 hover:bg-[#1e293b] border border-slate-800 hover:border-[#5865F2]/50 rounded-xl text-left transition-all flex items-center gap-2.5"
+                onClick={() => handleQuickDemoLogin('kiover.dev', 'Kiover Dev', 'kiover@bloodstore.dev', 1)}
+                className="p-2.5 bg-[#16141e] hover:bg-[#201d2c] border border-white/10 hover:border-[#ff003c]/50 rounded-xl text-left transition-all flex items-center gap-2.5"
               >
                 <img 
                   src="https://cdn.discordapp.com/embed/avatars/1.png" 
                   alt="Avatar" 
-                  className="w-7 h-7 rounded-full border border-slate-600"
+                  className="w-7 h-7 rounded-full border border-[#ff003c]/50"
                 />
                 <div className="truncate">
-                  <div className="text-xs font-bold text-white truncate">Kiover VIP</div>
+                  <div className="text-xs font-bold text-white truncate">Kiover Dev</div>
                   <div className="text-[10px] text-slate-400 truncate">@kiover.dev</div>
                 </div>
               </button>
 
               <button
                 type="button"
-                onClick={() => handleQuickDemoLogin('booster.gamer', 'Booster 2x', 'booster@discord.gg', 3)}
-                className="p-2.5 bg-[#1e293b]/50 hover:bg-[#1e293b] border border-slate-800 hover:border-[#5865F2]/50 rounded-xl text-left transition-all flex items-center gap-2.5"
+                onClick={() => handleQuickDemoLogin('booster.gamer', 'Booster', 'booster@discord.gg', 3)}
+                className="p-2.5 bg-[#16141e] hover:bg-[#201d2c] border border-white/10 hover:border-[#ff003c]/50 rounded-xl text-left transition-all flex items-center gap-2.5"
               >
                 <img 
                   src="https://cdn.discordapp.com/embed/avatars/3.png" 
                   alt="Avatar" 
-                  className="w-7 h-7 rounded-full border border-slate-600"
+                  className="w-7 h-7 rounded-full border border-[#ff003c]/50"
                 />
                 <div className="truncate">
-                  <div className="text-xs font-bold text-white truncate">Booster 2x</div>
+                  <div className="text-xs font-bold text-white truncate">Booster</div>
                   <div className="text-[10px] text-slate-400 truncate">@booster.gamer</div>
                 </div>
               </button>
@@ -169,7 +168,7 @@ export const DiscordLoginModal: React.FC<DiscordLoginModalProps> = ({ isOpen, on
           </div>
 
           <div className="flex items-center justify-center gap-2 text-center text-xs text-slate-500 pt-1">
-            <ShieldCheck className="w-4 h-4 text-[#5865F2]" />
+            <ShieldCheck className="w-4 h-4 text-[#ff003c]" />
             <span>Seus dados ficam salvos de forma segura em seu navegador.</span>
           </div>
         </div>

@@ -18,15 +18,15 @@ export const AdminDashboard: React.FC = () => {
   return (
     <section className="py-10 px-4 md:px-8 max-w-7xl mx-auto relative z-10 min-h-screen">
       {/* Top Admin Header Bar */}
-      <div className="hud-card p-5 sm:p-6 mb-8 border-l-4 border-l-[#4f46e5] flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="hud-card p-5 sm:p-6 mb-8 border-l-4 border-l-[#ff003c] flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-2xl bg-[#4f46e5]/10 border border-[#4f46e5]/30 flex items-center justify-center">
-            <Terminal className="w-6 h-6 text-[#4f46e5]" />
+          <div className="w-12 h-12 rounded-2xl bg-[#ff003c]/10 border border-[#ff003c]/30 flex items-center justify-center">
+            <Terminal className="w-6 h-6 text-[#ff003c]" />
           </div>
           <div>
             <div className="flex items-center gap-2.5">
               <h1 className="text-xl font-extrabold font-display text-white tracking-tight">
-                Painel Administrativo <span className="text-[#4f46e5]">Blood Store</span>
+                Painel Administrativo <span className="text-[#ff003c]">Blood Store</span>
               </h1>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 font-mono text-[10px] text-emerald-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -92,7 +92,7 @@ export const AdminDashboard: React.FC = () => {
           onClick={() => setAdminTab('stock')}
           className={`px-4 sm:px-5 py-3 text-xs sm:text-sm font-bold transition-all flex items-center gap-2 rounded-xl whitespace-nowrap ${
             adminTab === 'stock'
-              ? 'bg-[#4f46e5] text-white shadow-lg shadow-[#4f46e5]/25'
+              ? 'bg-[#ff003c] text-white shadow-lg shadow-[#ff003c]/25'
               : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
           }`}
         >
@@ -107,7 +107,7 @@ export const AdminDashboard: React.FC = () => {
           onClick={() => setAdminTab('products')}
           className={`px-4 sm:px-5 py-3 text-xs sm:text-sm font-bold transition-all flex items-center gap-2 rounded-xl whitespace-nowrap ${
             adminTab === 'products'
-              ? 'bg-[#4f46e5] text-white shadow-lg shadow-[#4f46e5]/25'
+              ? 'bg-[#ff003c] text-white shadow-lg shadow-[#ff003c]/25'
               : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
           }`}
         >
@@ -119,7 +119,7 @@ export const AdminDashboard: React.FC = () => {
           onClick={() => setAdminTab('terms')}
           className={`px-4 sm:px-5 py-3 text-xs sm:text-sm font-bold transition-all flex items-center gap-2 rounded-xl whitespace-nowrap ${
             adminTab === 'terms'
-              ? 'bg-[#4f46e5] text-white shadow-lg shadow-[#4f46e5]/25'
+              ? 'bg-[#ff003c] text-white shadow-lg shadow-[#ff003c]/25'
               : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
           }`}
         >

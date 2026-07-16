@@ -71,7 +71,9 @@ export const CheckoutPage: React.FC = () => {
   const handleStartPix = () => {
     if (!handleValidateBuyer()) return;
     setPixGenerated(true);
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    setTimeout(() => {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    }, 100);
   };
 
   const handleCopyPix = () => {
@@ -102,7 +104,6 @@ export const CheckoutPage: React.FC = () => {
   const handleFinishAndOpenDiscord = async (methodTitle: 'PIX AUTOMÁTICO' | 'TICKET DISCORD') => {
     if (!handleValidateBuyer()) return;
 
-    // Register order in store context (for admin approval and user account dashboard)
     const newOrder = createOrder({
       buyerDiscordNick: discordNick.trim(),
       buyerEmail: contactEmail.trim() || undefined,
@@ -124,7 +125,6 @@ export const CheckoutPage: React.FC = () => {
     const receipt = buildReceiptText(methodTitle, newOrder.id);
     navigator.clipboard.writeText(receipt);
 
-    // Send Discord Webhook notification automatically!
     await sendDiscordPurchaseNotification({
       storeName: config.storeName,
       discordNick: discordNick.trim(),
@@ -150,22 +150,22 @@ export const CheckoutPage: React.FC = () => {
 
   if (cart.length === 0 && !orderCompleted) {
     return (
-      <section className="container-main py-16 text-center animate-fadeIn">
-        <div className="hud-card max-w-xl mx-auto p-10 flex flex-col items-center gap-5">
-          <div className="p-5 bg-slate-800/80 border border-white/10 rounded-2xl text-[#4f46e5]">
-            <ShoppingCart className="w-10 h-10" />
+      <section className="container-main py-12 text-center animate-fadeIn">
+        <div className="hud-card max-w-md mx-auto p-8 flex flex-col items-center gap-4 border-[#ff003c]/40">
+          <div className="p-4 bg-[#ff003c]/10 border border-[#ff003c]/30 rounded-2xl text-[#ff003c]">
+            <ShoppingCart className="w-8 h-8" />
           </div>
-          <h2 className="text-2xl font-bold font-display text-white tracking-tight">
+          <h2 className="text-xl font-bold font-display text-white tracking-tight">
             Seu carrinho está vazio
           </h2>
-          <p className="text-slate-400 text-sm leading-relaxed">
-            Você ainda não adicionou nenhum produto da {config.storeName}. Explore nosso catálogo para selecionar pacotes e serviços de excelência.
+          <p className="text-slate-400 text-xs leading-relaxed">
+            Você ainda não adicionou nenhum produto da {config.storeName}. Explore nosso catálogo para selecionar pacotes e serviços.
           </p>
           <button 
             onClick={() => setActiveView('home')}
-            className="btn-cyber mt-2"
+            className="btn-cyber mt-2 py-2 px-5 text-xs"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5" />
             <span>Voltar à Loja</span>
           </button>
         </div>
@@ -175,39 +175,39 @@ export const CheckoutPage: React.FC = () => {
 
   if (orderCompleted) {
     return (
-      <section className="container-main py-16 text-center animate-fadeIn">
-        <div className="hud-card max-w-2xl mx-auto p-10 border-emerald-500/40 flex flex-col items-center gap-6">
-          <div className="p-5 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-emerald-400 animate-bounce">
-            <CheckCircle2 className="w-12 h-12" />
+      <section className="container-main py-12 text-center animate-fadeIn">
+        <div className="hud-card max-w-xl mx-auto p-8 border-emerald-500/40 flex flex-col items-center gap-4">
+          <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-emerald-400 animate-bounce">
+            <CheckCircle2 className="w-10 h-10" />
           </div>
-          <div className="text-xs font-semibold text-emerald-400 uppercase tracking-widest">
+          <div className="text-[11px] font-semibold text-emerald-400 uppercase tracking-widest">
             • Pedido registrado e notificado
           </div>
-          <h2 className="text-3xl font-extrabold font-display text-white tracking-tight">
+          <h2 className="text-2xl font-extrabold font-display text-white tracking-tight">
             Pedido pronto para entrega!
           </h2>
-          <div className="bg-slate-900/80 border border-white/10 p-5 w-full text-left rounded-xl space-y-2">
-            <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold">
+          <div className="bg-slate-900/80 border border-white/10 p-4 w-full text-left rounded-xl space-y-2 text-xs">
+            <div className="flex items-center gap-2 text-emerald-400 font-bold">
               <Copy className="w-4 h-4" />
               <span>O recibo foi copiado para sua área de transferência!</span>
             </div>
-            <p className="text-slate-300 text-sm leading-relaxed">
-              Enviamos a notificação de venda diretamente ao Discord oficial e estamos abrindo o servidor em nova aba. Basta ir no canal de **pedidos / tickets**, abrir seu ticket e **colar (`Ctrl+V`)** o recibo para receber seus itens imediatamente.
+            <p className="text-slate-300 leading-relaxed">
+              Enviamos a notificação ao Discord e abrimos o servidor em nova aba. Vá ao canal de **pedidos / tickets**, abra seu ticket e **cole (`Ctrl+V`)** o recibo para liberação dos seus itens.
             </p>
           </div>
-          <div className="flex flex-wrap gap-3 justify-center w-full pt-2">
+          <div className="flex flex-wrap gap-2.5 justify-center w-full pt-1">
             <a 
               href={config.globalDiscordUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-cyber py-3 px-6 text-sm"
+              className="btn-cyber py-2.5 px-5 text-xs"
             >
               <span>Ir ao Servidor Discord Agora</span>
-              <ExternalLink className="w-4 h-4" />
+              <ExternalLink className="w-3.5 h-3.5" />
             </a>
             <button 
               onClick={() => { setOrderCompleted(false); setActiveView('home'); }}
-              className="btn-cyber-outline py-3 px-6 text-sm"
+              className="btn-cyber-outline py-2.5 px-5 text-xs"
             >
               <span>Continuar Explorando</span>
             </button>
@@ -218,113 +218,113 @@ export const CheckoutPage: React.FC = () => {
   }
 
   return (
-    <section className="container-main py-12 animate-fadeIn">
+    <section className="container-main py-8 animate-fadeIn max-w-6xl mx-auto">
       {/* Top Header Bar */}
-      <div className="mb-8 border-b border-white/10 pb-6 flex flex-wrap items-center justify-between gap-4">
+      <div className="mb-6 border-b border-white/10 pb-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#4f46e5] uppercase tracking-wider mb-1">
+          <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#ff003c] uppercase tracking-wider mb-0.5">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>• Finalização do Pedido</span>
+            <span>• Finalização Rápida</span>
           </div>
-          <h1 className="text-3xl font-extrabold font-display text-white tracking-tight">
-            Checkout & <span className="text-[#4f46e5]">Pagamento</span>
+          <h1 className="text-2xl font-extrabold font-display text-white tracking-tight">
+            Checkout & <span className="text-[#ff003c]">Pagamento</span>
           </h1>
         </div>
 
         <button 
           onClick={() => setActiveView('home')}
-          className="btn-cyber-outline text-xs py-2 px-4"
+          className="btn-cyber-outline text-xs py-1.5 px-3.5"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Voltar ao Catálogo</span>
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Voltar à Loja</span>
         </button>
       </div>
 
       {/* Error Alert Box */}
       {validationError && (
-        <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-3 text-red-400 text-sm font-medium animate-fadeIn">
-          <AlertCircle className="w-5 h-5 flex-shrink-0" />
+        <div className="mb-5 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-2.5 text-red-400 text-xs font-medium animate-fadeIn">
+          <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span>{validationError}</span>
         </div>
       )}
 
-      {/* Main Grid: Left Items + Form, Right Summary & Pay */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+      {/* Main Grid: Compact 2 Columns */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Left Column (2 cols width on desktop): Cart Items & Buyer Form */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-5">
           {/* Box 1: Items List */}
-          <div className="hud-card p-6">
-            <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-5">
-              <h2 className="text-base font-bold font-display text-white flex items-center gap-2">
-                <ShoppingCart className="w-4 h-4 text-[#4f46e5]" />
+          <div className="hud-card p-4 sm:p-5 border-[#ff003c]/30">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+              <h2 className="text-sm font-bold font-display text-white flex items-center gap-2">
+                <ShoppingCart className="w-4 h-4 text-[#ff003c]" />
                 <span>Itens Selecionados ({cart.reduce((a, b) => a + b.quantity, 0)})</span>
               </h2>
               <button 
                 onClick={clearCart}
-                className="text-xs text-red-400 hover:text-red-300 font-semibold flex items-center gap-1 bg-transparent border-none cursor-pointer"
+                className="text-[11px] text-red-400 hover:text-red-300 font-semibold flex items-center gap-1 bg-transparent border-none cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Esvaziar</span>
               </button>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {cart.map(item => (
-                <div key={item.product.id} className="flex flex-wrap items-center justify-between gap-4 p-4 bg-slate-900/60 border border-white/10 rounded-xl">
-                  <div className="flex items-center gap-3.5 flex-1 min-w-[220px]">
+                <div key={item.product.id} className="flex flex-wrap items-center justify-between gap-3 p-3 bg-[#16141e]/80 border border-white/10 rounded-xl">
+                  <div className="flex items-center gap-3 flex-1 min-w-[200px]">
                     <img 
                       src={item.product.imageUrl} 
                       alt={item.product.name} 
-                      className="w-14 h-14 object-cover rounded-lg border border-slate-700"
+                      className="w-11 h-11 object-cover rounded-lg border border-slate-700"
                     />
                     <div>
-                      <div className="text-[10px] font-bold text-[#4f46e5] uppercase tracking-wider">
+                      <div className="text-[9px] font-bold text-[#ff003c] uppercase tracking-wider">
                         • {item.product.tag}
                       </div>
-                      <div className="font-bold text-white text-sm font-display">
+                      <div className="font-bold text-white text-xs font-display">
                         {item.product.name}
                       </div>
-                      <div className="text-xs text-slate-400 mt-0.5">
+                      <div className="text-[11px] text-slate-400">
                         Unitário: R$ {item.product.price.toFixed(2).replace('.', ',')}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3">
                     {/* Quantity Controls */}
-                    <div className="flex items-center bg-slate-800 border border-white/10 rounded-lg p-1">
+                    <div className="flex items-center bg-[#1e1b29] border border-white/10 rounded-lg p-0.5">
                       <button 
                         onClick={() => updateCartQuantity(item.product.id, item.quantity - 1)}
-                        className="p-1.5 hover:bg-white/10 text-white rounded transition-colors"
+                        className="p-1 hover:bg-white/10 text-white rounded transition-colors"
                         title="Diminuir quantidade"
                       >
-                        <Minus className="w-3.5 h-3.5" />
+                        <Minus className="w-3 h-3" />
                       </button>
-                      <span className="px-3 text-xs font-bold text-white">
+                      <span className="px-2.5 text-xs font-bold text-white">
                         {item.quantity}
                       </span>
                       <button 
                         onClick={() => updateCartQuantity(item.product.id, item.quantity + 1)}
-                        className="p-1.5 hover:bg-white/10 text-white rounded transition-colors"
+                        className="p-1 hover:bg-white/10 text-white rounded transition-colors"
                         title="Aumentar quantidade"
                       >
-                        <Plus className="w-3.5 h-3.5" />
+                        <Plus className="w-3 h-3" />
                       </button>
                     </div>
 
                     {/* Subtotal & Delete */}
-                    <div className="text-right min-w-[85px]">
-                      <div className="font-extrabold text-white text-sm">
+                    <div className="text-right min-w-[75px]">
+                      <div className="font-extrabold text-white text-xs">
                         R$ {(item.product.price * item.quantity).toFixed(2).replace('.', ',')}
                       </div>
                     </div>
 
                     <button 
                       onClick={() => removeFromCart(item.product.id)}
-                      className="p-1.5 text-slate-500 hover:text-red-400 transition-colors"
+                      className="p-1 text-slate-500 hover:text-red-400 transition-colors"
                       title="Remover item"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
@@ -332,31 +332,31 @@ export const CheckoutPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Box 2: Coupon & Referral Code Input */}
-          <div className="hud-card p-6">
-            <h3 className="text-base font-bold font-display text-white flex items-center gap-2 mb-4">
-              <Tag className="w-4 h-4 text-[#3b82f6]" />
-              <span>Cupom de Desconto ou Indicação</span>
+          {/* Box 2: Coupon */}
+          <div className="hud-card p-4 sm:p-5">
+            <h3 className="text-sm font-bold font-display text-white flex items-center gap-2 mb-3">
+              <Tag className="w-4 h-4 text-[#ff003c]" />
+              <span>Cupom de Desconto</span>
             </h3>
 
-            <form onSubmit={handleApplyCoupon} className="flex flex-wrap gap-3 items-center">
+            <form onSubmit={handleApplyCoupon} className="flex flex-wrap gap-2.5 items-center">
               <input 
                 type="text"
-                placeholder="Digite o código promocional (ex: BLOOD10, VIP20)"
+                placeholder="Digite o cupom (ex: BLOOD10)"
                 value={couponInput}
                 onChange={(e) => setCouponInput(e.target.value)}
-                className="flex-1 min-w-[200px] px-4 py-2.5 bg-slate-900/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:border-[#4f46e5] uppercase transition-colors"
+                className="flex-1 min-w-[180px] px-3.5 py-2 bg-[#16141e] border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-[#ff003c] uppercase transition-colors"
               />
               <button 
                 type="submit"
-                className="btn-cyber py-2.5 px-5 text-xs"
+                className="btn-cyber py-2 px-4 text-xs"
               >
                 <span>Aplicar</span>
               </button>
             </form>
 
             {couponMessage && (
-              <div className={`mt-3.5 p-3 rounded-xl text-xs flex items-center justify-between border ${
+              <div className={`mt-3 p-2.5 rounded-xl text-xs flex items-center justify-between border ${
                 couponMessage.success 
                   ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
                   : 'bg-red-500/10 border-red-500/30 text-red-400'
@@ -366,78 +366,74 @@ export const CheckoutPage: React.FC = () => {
                   <button 
                     type="button"
                     onClick={() => { setAppliedCoupon(null); setCouponMessage(null); setCouponInput(''); }}
-                    className="underline font-semibold hover:opacity-80"
+                    className="underline font-semibold hover:opacity-80 ml-2"
                   >
                     Remover
                   </button>
                 )}
               </div>
             )}
-
-            <div className="mt-3 text-xs text-slate-400">
-              💡 Cupons ativos para você: <span className="text-white font-bold">BLOOD10</span> (10% OFF), <span className="text-white font-bold">VIP20</span> (20% OFF), <span className="text-white font-bold">KIOVER</span> (15% OFF)
-            </div>
           </div>
 
           {/* Box 3: Buyer Nickname & Verification */}
-          <div className="hud-card p-6 border-t border-[#4f46e5]/40">
-            <h3 className="text-base font-bold font-display text-white flex items-center gap-2 mb-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#4f46e5]" />
-              <span>Dados de Entrega & Identificação Discord</span>
+          <div className="hud-card p-4 sm:p-5 border-t border-[#ff003c]/40">
+            <h3 className="text-sm font-bold font-display text-white flex items-center gap-2 mb-1">
+              <ShieldCheck className="w-4 h-4 text-[#ff003c]" />
+              <span>Dados de Entrega (Discord)</span>
             </h3>
-            <p className="text-slate-400 text-xs mb-5 leading-relaxed">
-              Para liberação ágil e segura em nosso sistema automatizado de tickets, certifique-se de preencher o seu Nickname correto ou estar conectado via conta Discord.
+            <p className="text-slate-400 text-xs mb-4 leading-relaxed">
+              Preencha seu Nickname correto do Discord para liberação automática do produto no estoque.
             </p>
 
             {currentUser && (
-              <div className="p-3.5 bg-[#5865F2]/10 border border-[#5865F2]/30 rounded-xl flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <img src={currentUser.avatarUrl} alt="Avatar" className="w-8 h-8 rounded-full border border-slate-600" />
+              <div className="p-3 bg-[#16141e] border border-[#ff003c]/40 rounded-xl flex items-center justify-between mb-3.5">
+                <div className="flex items-center gap-2.5">
+                  <img src={currentUser.avatarUrl} alt="Avatar" className="w-7 h-7 rounded-full border border-[#ff003c]" />
                   <div>
                     <div className="text-xs font-bold text-white">Conectado como {currentUser.globalName}</div>
-                    <div className="text-[11px] text-[#5865F2] font-mono">@{currentUser.username} • Verificado automaticamente</div>
+                    <div className="text-[10px] text-[#ff003c] font-mono">@{currentUser.username} • Verificado</div>
                   </div>
                 </div>
-                <UserCheck className="w-5 h-5 text-[#5865F2]" />
+                <UserCheck className="w-4 h-4 text-[#ff003c]" />
               </div>
             )}
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1">
                   Seu Nickname do Discord (Obrigatório) *
                 </label>
                 <input 
                   type="text"
-                  placeholder="Ex: guerreiro.gamer ou Guerreiro#1234"
+                  placeholder="Ex: lucas.gamer ou Lucas#1234"
                   value={discordNick}
                   onChange={(e) => setDiscordNick(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-900/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:border-[#4f46e5] transition-colors"
+                  className="w-full px-3.5 py-2 bg-[#16141e] border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-[#ff003c] transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                  E-mail para Receber Recibo (Opcional)
+                <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1">
+                  E-mail de Contato / Recibo (Opcional)
                 </label>
                 <input 
                   type="text"
-                  placeholder="Ex: seuemail@gmail.com ou WhatsApp"
+                  placeholder="Ex: seuemail@gmail.com"
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-900/80 border border-slate-700/80 rounded-xl text-white text-sm focus:outline-none focus:border-[#4f46e5] transition-colors"
+                  className="w-full px-3.5 py-2 bg-[#16141e] border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-[#ff003c] transition-colors"
                 />
               </div>
 
-              <label className="flex items-start gap-3 cursor-pointer pt-2">
+              <label className="flex items-start gap-2.5 cursor-pointer pt-1">
                 <input 
                   type="checkbox"
                   checked={isInServer}
                   onChange={(e) => setIsInServer(e.target.checked)}
-                  className="w-4 h-4 rounded accent-[#4f46e5] mt-0.5"
+                  className="w-3.5 h-3.5 rounded accent-[#ff003c] mt-0.5"
                 />
-                <span className="text-xs text-slate-300 leading-relaxed">
-                  Confirmo que estou no servidor oficial <strong className="text-white">{config.storeName}</strong> no Discord e que meu nickname está devidamente preenchido para liberação do pedido.
+                <span className="text-[11px] text-slate-300 leading-relaxed">
+                  Confirmo que estou no servidor oficial <strong className="text-white">{config.storeName}</strong> no Discord e que meu nickname está correto.
                 </span>
               </label>
             </div>
@@ -445,14 +441,14 @@ export const CheckoutPage: React.FC = () => {
         </div>
 
         {/* Right Column (1 col width on desktop): Summary & Payment Selection */}
-        <div className="space-y-6 sticky top-24">
+        <div className="space-y-5 sticky top-20">
           {/* Box 4: Financial Summary */}
-          <div className="hud-card p-6">
-            <h3 className="text-base font-bold font-display text-white border-b border-white/10 pb-3.5 mb-4">
+          <div className="hud-card p-4 sm:p-5 border-[#ff003c]/40">
+            <h3 className="text-sm font-bold font-display text-white border-b border-white/10 pb-3 mb-3">
               Resumo Financeiro
             </h3>
 
-            <div className="space-y-3 text-sm">
+            <div className="space-y-2.5 text-xs">
               <div className="flex justify-between text-slate-400">
                 <span>Subtotal dos Itens:</span>
                 <span className="font-semibold text-white">R$ {subtotal.toFixed(2).replace('.', ',')}</span>
@@ -466,13 +462,13 @@ export const CheckoutPage: React.FC = () => {
               )}
 
               <div className="flex justify-between text-slate-400">
-                <span>Taxa de Atendimento / Ticket:</span>
-                <span className="text-emerald-400 font-semibold">Grátis (R$ 0,00)</span>
+                <span>Taxa de Ticket:</span>
+                <span className="text-emerald-400 font-semibold">Grátis</span>
               </div>
 
-              <div className="border-t border-white/10 pt-4 mt-3 flex justify-between items-baseline">
-                <span className="text-sm font-bold text-white uppercase">Total a Pagar:</span>
-                <span className="text-2xl font-extrabold text-[#4f46e5]">
+              <div className="border-t border-white/10 pt-3 mt-2 flex justify-between items-baseline">
+                <span className="text-xs font-bold text-white uppercase">Total a Pagar:</span>
+                <span className="text-xl font-extrabold text-[#ff003c]">
                   R$ {total.toFixed(2).replace('.', ',')}
                 </span>
               </div>
@@ -480,65 +476,65 @@ export const CheckoutPage: React.FC = () => {
           </div>
 
           {/* Box 5: Choose Payment Method */}
-          <div className="hud-card p-6">
-            <h3 className="text-base font-bold font-display text-white mb-4">
-              Escolha o Método de Pagamento
+          <div className="hud-card p-4 sm:p-5">
+            <h3 className="text-sm font-bold font-display text-white mb-3">
+              Forma de Pagamento
             </h3>
 
-            <div className="space-y-3">
+            <div className="space-y-2.5">
               {/* Option A: PIX Automático */}
               <div 
                 onClick={() => { setPaymentMethod('pix'); setPixGenerated(false); }}
-                className={`p-4 rounded-xl cursor-pointer transition-all border ${
+                className={`p-3.5 rounded-xl cursor-pointer transition-all border ${
                   paymentMethod === 'pix' 
-                    ? 'bg-[#4f46e5]/10 border-[#4f46e5] shadow-md shadow-[#4f46e5]/10' 
-                    : 'bg-slate-900/60 border-white/10 hover:border-white/20'
+                    ? 'bg-[#ff003c]/10 border-[#ff003c] shadow-md shadow-[#ff003c]/15' 
+                    : 'bg-[#16141e]/70 border-white/10 hover:border-white/20'
                 }`}
               >
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center gap-2.5 font-bold text-white text-sm">
-                    <QrCode className="w-4 h-4 text-[#4f46e5]" />
-                    <span>PIX Instantâneo (Automático)</span>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2 font-bold text-white text-xs">
+                    <QrCode className="w-4 h-4 text-[#ff003c]" />
+                    <span>PIX Instantâneo (Copia & Cola / QR)</span>
                   </div>
-                  <span className="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold rounded-md">
-                    Recomendado
+                  <span className="px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[9px] font-bold rounded">
+                    Ágil
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Gere o QR Code e pague via aplicativo bancário. Liberação e notificação automática na hora!
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Gere o código PIX e pague via aplicativo do seu banco com liberação automática.
                 </p>
               </div>
 
               {/* Option B: Ticket no Discord */}
               <div 
                 onClick={() => { setPaymentMethod('discord'); setPixGenerated(false); }}
-                className={`p-4 rounded-xl cursor-pointer transition-all border ${
+                className={`p-3.5 rounded-xl cursor-pointer transition-all border ${
                   paymentMethod === 'discord' 
-                    ? 'bg-[#3b82f6]/10 border-[#3b82f6] shadow-md shadow-[#3b82f6]/10' 
-                    : 'bg-slate-900/60 border-white/10 hover:border-white/20'
+                    ? 'bg-[#ff003c]/10 border-[#ff003c] shadow-md shadow-[#ff003c]/15' 
+                    : 'bg-[#16141e]/70 border-white/10 hover:border-white/20'
                 }`}
               >
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center gap-2.5 font-bold text-white text-sm">
-                    <ExternalLink className="w-4 h-4 text-[#3b82f6]" />
-                    <span>Pagar com Atendente no Discord</span>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2 font-bold text-white text-xs">
+                    <ExternalLink className="w-4 h-4 text-[#ff003c]" />
+                    <span>Pagar via Ticket / Atendimento</span>
                   </div>
-                  <span className="px-2 py-0.5 bg-slate-800 text-slate-300 border border-white/10 text-[10px] font-bold rounded-md">
+                  <span className="px-1.5 py-0.5 bg-slate-800 text-slate-300 border border-white/10 text-[9px] font-bold rounded">
                     Manual
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  Copie o resumo formatado do pedido com cupom e cole direto no ticket de atendimento no servidor.
+                <p className="text-[11px] text-slate-400 leading-relaxed">
+                  Copie o resumo formatado e abra ticket com nossa equipe no servidor.
                 </p>
               </div>
             </div>
 
-            {/* Action Buttons based on Payment Method */}
-            <div className="mt-6">
+            {/* Action Buttons */}
+            <div className="mt-4">
               {paymentMethod === 'pix' && !pixGenerated && (
                 <button 
                   onClick={handleStartPix}
-                  className="btn-cyber w-full py-3.5 text-xs animate-pulse-glow"
+                  className="btn-cyber w-full py-3 text-xs animate-pulse-glow"
                 >
                   <QrCode className="w-4 h-4" />
                   <span>Gerar QR Code PIX Agora</span>
@@ -548,7 +544,7 @@ export const CheckoutPage: React.FC = () => {
               {paymentMethod === 'discord' && (
                 <button 
                   onClick={() => handleFinishAndOpenDiscord('TICKET DISCORD')}
-                  className="w-full py-3.5 px-4 bg-[#3b82f6] hover:bg-[#2563eb] text-white font-semibold text-xs rounded-xl shadow-lg shadow-[#3b82f6]/25 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3 px-4 bg-[#ff003c] hover:bg-[#d90033] text-white font-bold text-xs rounded-xl shadow-lg shadow-[#ff003c]/25 transition-all flex items-center justify-center gap-2"
                 >
                   <ExternalLink className="w-4 h-4" />
                   <span>Abrir Ticket com o Recibo</span>
@@ -559,68 +555,68 @@ export const CheckoutPage: React.FC = () => {
 
           {/* Box 6: Simulated PIX Terminal (Appears when PIX is generated) */}
           {paymentMethod === 'pix' && pixGenerated && (
-            <div className="hud-card p-6 border-2 border-emerald-500 animate-fadeIn shadow-lg shadow-emerald-500/10">
-              <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold mb-4 border-b border-emerald-500/20 pb-3">
-                <Clock className="w-4 h-4 animate-spin" />
-                <span>QR Code PIX Gerado • Válido por 15 min</span>
+            <div className="hud-card p-4 sm:p-5 border-2 border-emerald-500 animate-fadeIn shadow-lg shadow-emerald-500/10">
+              <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-bold mb-3 border-b border-emerald-500/20 pb-2.5">
+                <Clock className="w-3.5 h-3.5 animate-spin" />
+                <span>QR Code PIX Gerado • Chave Oficial</span>
               </div>
 
-              {/* Simulated QR Code Graphic */}
-              <div className="bg-white p-5 rounded-2xl flex flex-col items-center justify-center mb-5 border-4 border-emerald-500">
-                <div className="w-44 h-44 bg-black p-2.5 flex items-center justify-center relative rounded-xl overflow-hidden">
+              {/* Compact QR Code Graphic */}
+              <div className="bg-white p-3 rounded-xl flex flex-col items-center justify-center mb-3.5 border-2 border-emerald-500">
+                <div className="w-32 h-32 bg-black p-1.5 flex items-center justify-center relative rounded-lg overflow-hidden">
                   <img 
                     src="/fotos/Gemini_Generated_Image_v1yi2kv1yi2kv1yi.png" 
                     alt="QR Code" 
                     className="w-full h-full object-cover filter contrast-200"
                   />
-                  <div className="absolute inset-8 bg-[#4f46e5] rounded-xl flex items-center justify-center text-white font-bold text-xs text-center shadow-2xl p-2">
+                  <div className="absolute inset-4 bg-[#ff003c] rounded-lg flex items-center justify-center text-white font-bold text-[10px] text-center shadow-2xl p-1">
                     PIX Oficial<br />R$ {total.toFixed(2)}
                   </div>
                 </div>
-                <span className="mt-2 text-xs font-extrabold text-slate-900 tracking-wider">
-                  ESCANEIE COM SEU APP DO BANCO
+                <span className="mt-1.5 text-[10px] font-extrabold text-slate-900 tracking-wider">
+                  ESCANEIE COM O APP BANCÁRIO
                 </span>
               </div>
 
               {/* PIX Key and Copia e Cola field */}
-              <div className="space-y-3 mb-5">
+              <div className="space-y-2.5 mb-4 text-xs">
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
-                    🔑 Chave PIX Oficial (E-mail / Aleatória):
+                  <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                    🔑 Chave PIX Oficial:
                   </label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
                     <input 
                       type="text" 
                       readOnly 
                       value={pixKey} 
-                      className="flex-1 px-3 py-2.5 bg-slate-900 border border-[#4f46e5]/60 rounded-xl text-white font-mono text-xs font-bold focus:outline-none truncate"
+                      className="flex-1 px-2.5 py-2 bg-[#16141e] border border-[#ff003c]/60 rounded-lg text-white font-mono text-xs font-bold focus:outline-none truncate"
                     />
                     <button 
                       onClick={handleCopyKeyOnly}
-                      className="px-4 py-2.5 bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors"
+                      className="px-3 py-2 bg-[#ff003c] hover:bg-[#d90033] text-white font-bold text-xs rounded-lg flex items-center gap-1 transition-colors"
                     >
-                      {copiedKeyOnly ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                      <span>{copiedKeyOnly ? 'Copiada!' : 'Copiar Chave'}</span>
+                      {copiedKeyOnly ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                      <span>{copiedKeyOnly ? 'Copiada!' : 'Copiar'}</span>
                     </button>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
-                    📋 Ou use o código PIX Copia e Cola:
+                  <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
+                    📋 Código Copia & Cola:
                   </label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
                     <input 
                       type="text" 
                       readOnly 
                       value={pixCopyPasteCode} 
-                      className="flex-1 px-3 py-2.5 bg-slate-900 border border-emerald-500/50 rounded-xl text-emerald-400 font-mono text-xs focus:outline-none truncate"
+                      className="flex-1 px-2.5 py-2 bg-[#16141e] border border-emerald-500/50 rounded-lg text-emerald-400 font-mono text-[11px] focus:outline-none truncate"
                     />
                     <button 
                       onClick={handleCopyPix}
-                      className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-black font-bold text-xs rounded-xl flex items-center gap-1.5 transition-colors"
+                      className="px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-black font-bold text-xs rounded-lg flex items-center gap-1 transition-colors"
                     >
-                      {copiedPix ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      {copiedPix ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                       <span>{copiedPix ? 'Copiado!' : 'Copiar'}</span>
                     </button>
                   </div>
@@ -630,14 +626,11 @@ export const CheckoutPage: React.FC = () => {
               {/* Confirm action */}
               <button 
                 onClick={() => handleFinishAndOpenDiscord('PIX AUTOMÁTICO')}
-                className="w-full py-3.5 px-4 bg-emerald-500 hover:bg-emerald-600 text-black font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-600 text-black font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition-all flex items-center justify-center gap-2"
               >
                 <CheckCircle2 className="w-4 h-4" />
-                <span>Já fiz o pagamento via PIX!</span>
+                <span>Confirmar e Notificar no Discord!</span>
               </button>
-              <div className="text-center mt-2.5 text-[11px] text-slate-400">
-                Ao confirmar, você enviará a notificação no Discord e abrirá o ticket.
-              </div>
             </div>
           )}
         </div>

@@ -32,19 +32,21 @@ export const StockView: React.FC = () => {
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Header banner */}
-      <div className="hud-card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-l-4 border-l-[#4f46e5]">
-        <div>
-          <h2 className="text-xl font-bold font-display text-white flex items-center gap-2.5">
-            <Package className="w-6 h-6 text-[#4f46e5]" />
-            <span>Gerenciamento de Estoque e Entrega Automática</span>
-          </h2>
-          <p className="text-xs text-slate-400 mt-1">
-            Cada linha inserida representa 1 (uma) unidade/item no estoque. Ao aprovar uma compra no painel ou Discord, o sistema envia automaticamente a primeira linha disponível para o cliente via e-mail ou painel.
-          </p>
+      <div className="hud-card p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-l-4 border-l-[#ff003c]">
+        <div className="flex items-center gap-3">
+          <div className="p-3 bg-[#ff003c]/20 border border-[#ff003c]/30 rounded-xl text-[#ff003c]">
+            <Package className="w-6 h-6 text-[#ff003c]" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-white font-display">Estoque & Entrega Automática</h2>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Insira o formato: <code className="text-white bg-slate-800 px-1 py-0.5 rounded">Login: xxx | Senha: yyy</code>. Cada linha preenchida vira <strong className="text-white">1 unidade em estoque</strong>.
+            </p>
+          </div>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-[#4f46e5]/10 border border-[#4f46e5]/30 rounded-xl text-xs font-semibold text-[#4f46e5]">
+        <div className="flex items-center gap-2 px-3 py-1.5 bg-[#ff003c]/10 border border-[#ff003c]/30 rounded-xl text-xs font-semibold text-[#ff003c]">
           <Layers className="w-4 h-4" />
-          <span>{products.reduce((acc, p) => acc + (p.stockItems?.length || 0), 0)} Total de Itens em Estoque</span>
+          <span>Controle Dinâmico de Linhas</span>
         </div>
       </div>
 
@@ -65,7 +67,7 @@ export const StockView: React.FC = () => {
                   onClick={() => handleSelectProduct(product)}
                   className={`w-full p-3.5 rounded-xl text-left transition-all flex items-center justify-between gap-3 border ${
                     isSelected
-                      ? 'bg-[#4f46e5]/15 border-[#4f46e5] text-white shadow-md'
+                      ? 'bg-[#ff003c]/15 border-[#ff003c] text-white shadow-md'
                       : 'bg-slate-900/50 border-white/5 text-slate-300 hover:bg-slate-900 hover:border-white/10'
                   }`}
                 >
@@ -112,7 +114,7 @@ export const StockView: React.FC = () => {
                   <div>
                     <h3 className="text-base font-bold text-white">{selectedProduct.name}</h3>
                     <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-xs text-[#4f46e5] font-semibold font-mono">
+                      <span className="text-xs text-[#ff003c] font-semibold font-mono">
                         R$ {selectedProduct.price.toFixed(2).replace('.', ',')}
                       </span>
                       <span className="text-slate-600">•</span>
@@ -125,10 +127,10 @@ export const StockView: React.FC = () => {
 
                 <button
                   onClick={handleSaveStock}
-                  className="px-5 py-2.5 bg-[#4f46e5] hover:bg-[#4338ca] text-white font-bold text-xs rounded-xl shadow-lg shadow-[#4f46e5]/20 flex items-center justify-center gap-2 transition-all"
+                  className="px-5 py-2.5 bg-[#ff003c] hover:bg-[#d90033] text-white font-bold text-xs rounded-xl shadow-lg shadow-[#ff003c]/20 flex items-center justify-center gap-2 transition-all"
                 >
                   <Save className="w-4 h-4" />
-                  <span>Salvar Estoque</span>
+                  <span>Salvar Linhas de Estoque</span>
                 </button>
               </div>
 
@@ -139,28 +141,30 @@ export const StockView: React.FC = () => {
                 </div>
               )}
 
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
-                    Lista de Itens (1 unidade por linha)
-                  </label>
-                  <span className="text-[11px] text-slate-400 font-mono">
-                    {stockText.split('\n').filter(l => l.trim()).length} linha(s) válidas no campo
-                  </span>
+              <div className="p-4 bg-slate-900/40 rounded-xl border border-white/5 space-y-2">
+                <div className="text-xs font-semibold text-slate-300 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-[#ff003c]" />
+                  <span>Editor Linha por Linha:</span>
                 </div>
-                <p className="text-xs text-slate-400 mb-3 leading-relaxed">
-                  Insira abaixo os logins, chaves de ativação, links de presente ou tokens que serão enviados automaticamente ao comprador. Exemplo: <br />
-                  <code className="text-indigo-300 bg-indigo-950/40 px-1.5 py-0.5 rounded text-[11px]">
-                    Login: user_01 | Senha: pass123 | E-mail: acc@blood.gg
-                  </code>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  Digite cada item em uma nova linha. Exemplo: <br />
+                  <code className="text-[#ff003c] font-mono text-[11px]">
+                    Login: user_01 | Senha: pass123 | E-mail: email@test.com
+                  </code><br />
+                  Quando o pedido for aprovado, o sistema pegará automaticamente a primeira linha, enviará para o cliente e removerá esta linha do estoque.
                 </p>
+              </div>
 
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                  Linhas de Estoque ({stockText.split('\n').filter(l => l.trim()).length} linha(s))
+                </label>
                 <textarea
+                  rows={10}
+                  placeholder="Login: exemplo@blood.gg | Senha: abc123&#10;Login: compra02@blood.gg | Senha: def456&#10;Chave: XXXX-YYYY-ZZZZ"
                   value={stockText}
-                  onChange={e => setStockText(e.target.value)}
-                  rows={14}
-                  placeholder="Insira os itens/contas do estoque aqui, um por linha..."
-                  className="w-full p-4 bg-slate-900/80 border border-white/10 rounded-2xl text-slate-200 font-mono text-xs leading-relaxed focus:outline-none focus:border-[#4f46e5] transition-colors resize-y"
+                  onChange={(e) => setStockText(e.target.value)}
+                  className="w-full p-4 bg-slate-900/80 border border-white/10 rounded-2xl text-slate-200 font-mono text-xs leading-relaxed focus:outline-none focus:border-[#ff003c] transition-colors resize-y"
                 />
               </div>
 
