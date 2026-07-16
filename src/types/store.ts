@@ -8,7 +8,7 @@ export interface Product {
   description: string;
   features: string[];
   imageUrl: string;
-  badge?: 'MAIS VENDIDO' | 'ENTREGA IMEDIATA' | 'PROMOÇÃO' | 'EM ALTA' | 'EXCLUSIVO';
+  badge?: 'MAIS VENDIDO' | 'ENTREGA IMEDIATA' | 'PROMOÇÃO' | 'EM ALTA' | 'EXCLUSIVO' | 'DESTAQUE' | 'ESPECIALIZADO';
   status: 'DISPONÍVEL' | 'PROMOÇÃO' | 'ESGOTADO';
   discordUrl?: string; // se vazio, usa o globalDiscordUrl da loja
   stockItems?: string[]; // Lista de itens (logins, contas, chaves, links) em estoque para entrega automática

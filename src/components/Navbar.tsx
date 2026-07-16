@@ -92,7 +92,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuthModal, onOpenAccountMo
             rel="noopener noreferrer"
             style={{ color: '#d0d0e0', textDecoration: 'none', fontWeight: 500, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}
           >
-            <span>DISCORD</span>
+            <span>SUPORTE</span>
             <ExternalLink style={{ width: '14px', height: '14px' }} />
           </a>
         </div>
@@ -146,7 +146,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuthModal, onOpenAccountMo
               className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-[#16141e] hover:bg-[#201d2c] border border-[#ff003c]/40 hover:border-[#ff003c] text-white font-bold text-xs rounded-lg transition-all"
             >
               <UserCheck className="w-4 h-4 text-[#ff003c]" />
-              <span>Login Discord</span>
+              <span>Acesso ao Portal</span>
             </button>
           )}
 
@@ -154,9 +154,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuthModal, onOpenAccountMo
             href={config.globalDiscordUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn-cyber text-xs py-1.5 px-3.5 rounded-lg"
+            className="inline-flex items-center justify-center gap-1.5 bg-[#121218] hover:bg-[#1a1a24] border border-[#ff003c]/60 hover:border-[#ff003c] text-white font-bold text-xs py-1.5 px-3.5 rounded-lg transition-all shadow-sm no-underline"
           >
-            <span>SERVIDOR DISCORD</span>
+            <span>CENTRAL DE ATENDIMENTO</span>
+            <ExternalLink className="w-3.5 h-3.5 text-[#ff003c]" />
           </a>
         </div>
 
@@ -274,7 +275,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuthModal, onOpenAccountMo
               className="w-full py-2.5 mt-2 bg-[#16141e] border border-[#ff003c]/50 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-2 shadow-md"
             >
               <UserCheck className="w-4 h-4 text-[#ff003c]" />
-              <span>Conectar com Discord</span>
+              <span>Conectar ao Portal</span>
             </button>
           )}
 
@@ -284,7 +285,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenAuthModal, onOpenAccountMo
             rel="noopener noreferrer"
             className="flex items-center justify-between py-2 font-semibold text-sm text-[#ff003c] no-underline"
           >
-            <span>Servidor Discord Oficial</span>
+            <span>Canal de Suporte Oficial</span>
             <ExternalLink className="w-4 h-4" />
           </a>
         </div>

@@ -99,7 +99,8 @@ export const DiscordLoginModal: React.FC<DiscordLoginModalProps> = ({ isOpen, on
                 placeholder="Ex: lucas.gamer ou Lucas#1234"
                 value={usernameInput}
                 onChange={(e) => setUsernameInput(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-[#16141e] border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-[#ff003c] transition-colors"
+                style={{ backgroundColor: '#141622', color: '#ffffff' }}
+                className="w-full px-4 py-2.5 bg-[#141622] border border-white/12 rounded-xl text-white text-sm font-medium focus:outline-none focus:border-[#ff003c] placeholder:text-slate-500 transition-colors"
               />
             </div>
 
@@ -112,7 +113,8 @@ export const DiscordLoginModal: React.FC<DiscordLoginModalProps> = ({ isOpen, on
                 placeholder="Para envio de recibos (ex: lucas@email.com)"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-[#16141e] border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-[#ff003c] transition-colors"
+                style={{ backgroundColor: '#141622', color: '#ffffff' }}
+                className="w-full px-4 py-2.5 bg-[#141622] border border-white/12 rounded-xl text-white text-sm font-medium focus:outline-none focus:border-[#ff003c] placeholder:text-slate-500 transition-colors"
               />
             </div>
 
@@ -151,7 +153,7 @@ export const DiscordLoginModal: React.FC<DiscordLoginModalProps> = ({ isOpen, on
 
               <button
                 type="button"
-                onClick={() => handleQuickDemoLogin('booster.gamer', 'Booster', 'booster@discord.gg', 3)}
+                onClick={() => handleQuickDemoLogin('cliente.vip', 'Cliente Corporativo', 'contato@empresa.com', 3)}
                 className="p-2.5 bg-[#16141e] hover:bg-[#201d2c] border border-white/10 hover:border-[#ff003c]/50 rounded-xl text-left transition-all flex items-center gap-2.5"
               >
                 <img 
@@ -160,8 +162,8 @@ export const DiscordLoginModal: React.FC<DiscordLoginModalProps> = ({ isOpen, on
                   className="w-7 h-7 rounded-full border border-[#ff003c]/50"
                 />
                 <div className="truncate">
-                  <div className="text-xs font-bold text-white truncate">Booster</div>
-                  <div className="text-[10px] text-slate-400 truncate">@booster.gamer</div>
+                  <div className="text-xs font-bold text-white truncate">Cliente Corporativo</div>
+                  <div className="text-[10px] text-slate-400 truncate">@cliente.vip</div>
                 </div>
               </button>
             </div>

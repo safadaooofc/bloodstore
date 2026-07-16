@@ -15,32 +15,20 @@ export const Hero: React.FC = () => {
 
   return (
     <section className="hero-section">
-      {/* Background Cyber Video & Overlay */}
-      <div className="hero-video-bg">
-        <video autoPlay loop muted playsInline>
-          <source src="/fotos/videos/animation.mp4" type="video/mp4" />
-        </video>
-        <div className="hero-video-overlay" />
-      </div>
-
-      {/* Decorative Ambient Glow */}
-      <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '80%', maxWidth: '900px', height: '280px', background: 'rgba(255, 0, 60, 0.16)', filter: 'blur(130px)', pointerEvents: 'none', borderRadius: '50%' }} />
+      {/* Corporate Ambient Red Glow */}
+      <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: '80%', maxWidth: '900px', height: '280px', background: 'rgba(255, 0, 60, 0.12)', filter: 'blur(130px)', pointerEvents: 'none', borderRadius: '50%' }} />
       
       <div className="hero-content">
-        {/* Status Pill Badge with Animated GIF */}
+        {/* Professional Status Pill */}
         <div className="status-pill animate-float">
-          <img 
-            src="/fotos/videos/a_3b92739a0066d125bf473beccfe5bbb1.gif" 
-            alt="Pulse" 
-            style={{ width: '16px', height: '16px', objectFit: 'contain' }}
-          />
-          <span style={{ color: 'var(--color-neon-red)', fontWeight: 700 }}>BLOOD </span>
-          <span style={{ color: '#666677' }}>//</span>
-          <span>SERVIDOR ONLINE </span>
+          <span className="w-2 h-2 rounded-full bg-[#ff003c]" />
+          <span style={{ color: 'var(--color-neon-red)', fontWeight: 700 }}>PORTAL OFICIAL </span>
+          <span style={{ color: '#666677' }}>•</span>
+          <span>SISTEMA OPERACIONAL ATIVO </span>
           <Activity style={{ width: '14px', height: '14px', color: 'var(--color-neon-red)', marginLeft: '4px' }} />
         </div>
 
-        {/* Brand Crest Circle */}
+        {/* Brand Crest Box */}
         <div className="brand-crest-box">
           <div className="brand-crest-circle neon-glow">
             <img 
@@ -49,21 +37,17 @@ export const Hero: React.FC = () => {
             />
           </div>
           <div className="brand-crest-badge">
-            STORE Blood
+            PORTAL DE SOLUÇÕES
           </div>
         </div>
 
-        {/* Perfectly Spaced Title */}
+        {/* Executive Title */}
         <h1 className="hero-title">
           {config.bannerTitle.split(' ').map((word, i) => (
             <span 
               key={i} 
-              className={`word-item ${
-                word.toLowerCase().includes('supremacia') || word.toLowerCase().includes('gamer') || i % 3 === 1 
-                  ? 'neon-glow-text' 
-                  : ''
-              }`}
-              style={{ color: word.toLowerCase().includes('supremacia') || word.toLowerCase().includes('gamer') || i % 3 === 1 ? 'var(--color-neon-red)' : '#ffffff' }}
+              className="word-item"
+              style={{ color: i % 3 === 1 || word.toLowerCase().includes('soluções') || word.toLowerCase().includes('licenças') ? 'var(--color-neon-red)' : '#ffffff' }}
             >
               {word}
             </span>
@@ -75,15 +59,15 @@ export const Hero: React.FC = () => {
           {config.bannerSubtitle}
         </p>
 
-        {/* 4 Feature Badges Grid */}
+        {/* 4 Professional Feature Badges Grid */}
         <div className="hero-badges-grid">
           <div className="badge-card hud-card">
             <div className="badge-icon">
               <Zap style={{ width: '22px', height: '22px' }} />
             </div>
             <div>
-              <div className="badge-text-label">Entrega Rápida</div>
-              <div className="badge-text-value">Em até 24 Horas</div>
+              <div className="badge-text-label">Entrega Automatizada</div>
+              <div className="badge-text-value">Disponibilização Rápida</div>
             </div>
           </div>
 
@@ -92,8 +76,8 @@ export const Hero: React.FC = () => {
               <ShieldCheck style={{ width: '22px', height: '22px' }} />
             </div>
             <div>
-              <div className="badge-text-label">Segurança Total</div>
-              <div className="badge-text-value">Contas & Itens Reais</div>
+              <div className="badge-text-label">Autenticidade & Garantia</div>
+              <div className="badge-text-value">Ativos Verificados</div>
             </div>
           </div>
 
@@ -102,8 +86,8 @@ export const Hero: React.FC = () => {
               <Clock style={{ width: '22px', height: '22px' }} />
             </div>
             <div>
-              <div className="badge-text-label">Atendimento VIP</div>
-              <div className="badge-text-value">Fura-fila Booster</div>
+              <div className="badge-text-label">Atendimento Humanizado</div>
+              <div className="badge-text-value">Suporte Especializado</div>
             </div>
           </div>
 
@@ -112,20 +96,20 @@ export const Hero: React.FC = () => {
               <Sparkles style={{ width: '22px', height: '22px' }} />
             </div>
             <div>
-              <div className="badge-text-label">Forma de Pagamento</div>
+              <div className="badge-text-label">Processamento Seguro</div>
               <div className="badge-text-value" style={{ color: 'var(--color-neon-red)' }}>PIX Instantâneo</div>
             </div>
           </div>
         </div>
 
-        {/* Centered CTA Buttons */}
+        {/* Centered Executive CTA Buttons */}
         <div className="hero-cta-group">
           <a 
             href="#produtos"
             onClick={handleScrollToProducts}
-            className="btn-cyber animate-pulse-glow"
+            className="btn-cyber"
           >
-            <span>VER PRODUTOS</span>
+            <span>ACESSAR CATÁLOGO</span>
             <ArrowDown style={{ width: '18px', height: '18px' }} />
           </a>
 
@@ -135,36 +119,36 @@ export const Hero: React.FC = () => {
             rel="noopener noreferrer"
             className="btn-cyber-outline"
           >
-            <span>COMUNIDADE DISCORD</span>
+            <span>PORTAL DE ATENDIMENTO</span>
             <ExternalLink style={{ width: '16px', height: '16px' }} />
           </a>
         </div>
 
-        {/* Centered 4-Column Stats Grid */}
+        {/* Centered 4-Column Professional Stats Grid */}
         <div className="stats-grid">
           <div>
             <div className="stat-number">
               +{config.stats.totalSales.toLocaleString()}
             </div>
-            <div className="stat-label">// Vendas Concluídas</div>
+            <div className="stat-label">Transações Concluídas</div>
           </div>
           <div>
             <div className="stat-number" style={{ color: 'var(--color-neon-red)' }}>
               +{config.stats.activeUsers.toLocaleString()}
             </div>
-            <div className="stat-label">// Membros Ativos</div>
+            <div className="stat-label">Clientes Ativos</div>
           </div>
           <div>
             <div className="stat-number">
               {config.stats.satisfactionRate}
             </div>
-            <div className="stat-label">// Satisfação Real</div>
+            <div className="stat-label">Índice de Satisfação</div>
           </div>
           <div>
-            <div className="stat-number" style={{ color: 'var(--color-neon-cyan)' }}>
+            <div className="stat-number" style={{ color: 'var(--color-neon-red)' }}>
               ~{config.stats.averageDelivery}
             </div>
-            <div className="stat-label">// Tempo de Resposta</div>
+            <div className="stat-label">Tempo Médio de Atendimento</div>
           </div>
         </div>
       </div>

@@ -3,18 +3,10 @@ import React from 'react';
 export const CleanBackground: React.FC = () => {
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden bg-[#090a0f]">
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover opacity-45 filter brightness-90 contrast-125 pointer-events-none"
-      >
-        <source src="/fotos/videos/animation.mp4" type="video/mp4" />
-      </video>
-      {/* Dark red/black overlays for contrast and readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#090a0f] via-transparent to-[#090a0f]/80 pointer-events-none" />
-      <div className="absolute inset-0 bg-black/45 pointer-events-none" />
+      {/* Sleek corporate dark background with subtle ambient ruby glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-[#ff003c]/10 via-[#ff003c]/5 to-transparent filter blur-[140px] opacity-60 pointer-events-none rounded-full" />
+      <div className="absolute bottom-0 right-0 w-[600px] h-[400px] bg-gradient-to-tl from-[#141522] via-transparent to-transparent opacity-50 pointer-events-none" />
+      <div className="absolute inset-0 bg-[#090a0f]/90 pointer-events-none" />
     </div>
   );
 };

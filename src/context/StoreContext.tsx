@@ -200,50 +200,50 @@ const DEFAULT_PRODUCTS: Product[] = [
     badge: 'ESPECIALIZADO',
     status: 'DISPONÍVEL',
     stockItems: [
-      'Voucher Agendamento Técnico #01 - Acesse o canal #agendar-boost no Discord com o código BOOST-01'
+      'Voucher Atendimento Técnico #01 - Acesse o canal de suporte com o código de agendamento BOOST-01'
     ]
   },
   {
     id: 'prod-7',
-    slug: 'contas-nitro-c0nta-n1tr4d4',
-    name: 'Contas Discord com Nitro Gaming/Boost (c0nta-n1tr4d4)',
-    tag: 'DISCORD',
+    slug: 'beneficios-comunidade-discord',
+    name: 'Assinatura Discord Nitro & Impulsos',
+    tag: 'COMUNIDADE',
     price: 29.90,
     originalPrice: 55.00,
-    description: 'Contas do Discord com Nitro Gaming ativo de 1 a 12 meses + 2 Impulsos de Servidor (Boosts) incluídos. Ou receba o token de ativação/gift no seu próprio perfil.',
+    description: 'Assinaturas do Discord com benefícios ativos de 1 a 12 meses, incluindo impulsos de servidor. Ideal para expansão e engajamento da sua comunidade.',
     features: [
-      'Nitro Gaming 100% original sem risco de queda',
-      '2 Boosts de servidor para você impulsionar sua comunidade',
-      'Acesso a emojis animados, banners em 4K e uploads grandes',
-      'Entrega ultra rápida pelo nosso bot de auto-atendimento'
+      'Assinatura oficial com conformidade e garantia contínua',
+      'Impulsos de servidor para aprimoramento do seu espaço',
+      'Recursos avançados de personalização e comunicação',
+      'Disponibilização automatizada via portal corporativo'
     ],
     imageUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=800&auto=format&fit=crop',
     badge: 'PROMOÇÃO',
     status: 'PROMOÇÃO',
     stockItems: [
-      'Token/Gift Nitro #1: https://discord.gift/XyZ987AbC123Blood',
-      'Token/Gift Nitro #2: https://discord.gift/QWe456RtY789Blood'
+      'Licença de Ativação Nitro #1: https://discord.gift/XyZ987AbC123Blood',
+      'Licença de Ativação Nitro #2: https://discord.gift/QWe456RtY789Blood'
     ]
   },
   {
     id: 'prod-8',
-    slug: 'seguidores-engajamento-s3gu1d0r3s',
-    name: 'Seguidores & Engajamento Real (s3gu1d0r3s)',
-    tag: 'ENGAJAMENTO',
+    slug: 'engajamento-redes-sociais',
+    name: 'Gestão de Engajamento para Redes Sociais',
+    tag: 'MARKETING',
     price: 19.90,
     originalPrice: 35.00,
-    description: 'Pacotes de seguidores de alta retenção, curtidas e visualizações para Instagram, TikTok, Twitch ou YouTube. Cresça a autoridade da sua marca ou perfil de forma rápida e segura.',
+    description: 'Soluções de engajamento orgânico de alta retenção para consolidação de presença em redes sociais. Expanda a visibilidade da sua marca com métricas consistentes.',
     features: [
-      'Perfis reais com fotos, bio e publicações no feed',
-      'Início imediato após confirmação do pagamento',
-      'Sem necessidade de informar senha (apenas @ ou link)',
-      'Garantia de reposição automática de 30 a 60 dias'
+      'Perfis interativos com alta taxa de retenção',
+      'Processamento contínuo após validação do pedido',
+      'Execução segura sem necessidade de credenciais de acesso',
+      'Garantia contratual de reposição de 30 a 60 dias'
     ],
     imageUrl: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=800&auto=format&fit=crop',
     badge: 'ENTREGA IMEDIATA',
     status: 'DISPONÍVEL',
     stockItems: [
-      'Voucher Painel de SMM #01 - Crédito de R$ 19,90 liberado no painel automático'
+      'Crédito Portal Marketing #01 - Valor de R$ 19,90 creditado no sistema automatizado'
     ]
   }
 ];
@@ -251,29 +251,29 @@ const DEFAULT_PRODUCTS: Product[] = [
 const DEFAULT_TERMS: TermItem[] = [
   {
     id: 'term-1',
-    title: 'Forma de pagamento',
-    content: 'Apenas PIX. Nossa chave de pagamento e QRCode são fornecidos exclusivamente no momento do fechamento do ticket em nosso servidor do Discord ou no sistema automático.',
+    title: 'Formas de Pagamento',
+    content: 'O processamento das transações é realizado de forma segura via PIX. A chave de pagamento e o respectivo código QR são gerados automaticamente durante a finalização no portal ou em nosso canal de atendimento.',
     category: 'PAGAMENTO',
     isImportant: true
   },
   {
     id: 'term-2',
-    title: 'Reembolso',
-    content: 'Não fazemos reembolso após a entrega, a menos que aconteça um erro por nossa parte. Todos os produtos e contas são pré-testados e entregues em perfeito funcionamento.',
+    title: 'Política de Estorno e Reembolso',
+    content: 'Todos os ativos e licenças passam por rigorosa auditoria e teste técnico previamente à entrega. O estorno ou reembolso é garantido integralmente em caso de não conformidade técnica ou indisponibilidade devidamente comprovada pelo suporte.',
     category: 'REGRAS',
     isImportant: true
   },
   {
     id: 'term-3',
-    title: 'Prazo de entrega',
-    content: 'Em até 24h (esse prazo pode mudar para reservas ou alta demanda). Não fiquem perturbando o dono ou a equipe para entregar, não temos somente um cliente para atender, então é só aguardar. Caso não seja entregue dentro do prazo, fazemos o reembolso integral no seu PIX.',
+    title: 'Prazos e Acordos de Nível de Serviço (SLA)',
+    content: 'O prazo padronizado de disponibilização é de até 24 horas úteis, podendo variar de acordo com a especificidade e demanda do ativo. Nossa equipe técnica atende as solicitações por estrita ordem de registro no sistema. Caso o prazo limite seja excedido sem justificativa técnica, o cliente poderá solicitar o reembolso integral e imediato via PIX.',
     category: 'ENTREGA',
     isImportant: true
   },
   {
     id: 'term-4',
-    title: 'Pós entrega',
-    content: 'Não nos responsabilizamos mais depois da entrega do produto/serviço. Ao receber seus dados ou itens, faça a alteração imediata de senhas, e-mails de recuperação e verificações de segurança conforme nossas instruções.',
+    title: 'Responsabilidade Pós-Entrega',
+    content: 'Após o recebimento do ativo ou credencial de acesso, recomendamos expressamente que o cliente proceda com a atualização imediata de todas as senhas, e-mails de recuperação e protocolos de autenticação em duas etapas (2FA), assumindo a gestão integral e segura do item adquirido.',
     category: 'REGRAS'
   },
   {

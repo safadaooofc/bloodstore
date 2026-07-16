@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useStore } from '../../context/StoreContext';
-import { Shield, AlertTriangle, Clock, DollarSign, HelpCircle, ChevronDown, Sparkles, Star } from 'lucide-react';
+import { Shield, AlertTriangle, Clock, DollarSign, HelpCircle, ChevronDown, Star } from 'lucide-react';
 
 export const TermsSection: React.FC = () => {
   const { terms, config, setActiveView } = useStore();
-  const [openAccordionIds, setOpenAccordionIds] = useState<string[]>(() => terms.map(t => t.id)); // Expand all by default for immediate reading
+  const [openAccordionIds, setOpenAccordionIds] = useState<string[]>(() => terms.map(t => t.id));
 
   const toggleAccordion = (id: string) => {
     setOpenAccordionIds(prev => 
@@ -14,9 +14,9 @@ export const TermsSection: React.FC = () => {
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'PAGAMENTO': return <DollarSign className="w-5 h-5 text-green-400" />;
-      case 'ENTREGA': return <Clock className="w-5 h-5 text-[#00f0ff]" />;
-      case 'SUPORTE': return <HelpCircle className="w-5 h-5 text-yellow-400" />;
+      case 'PAGAMENTO': return <DollarSign className="w-5 h-5 text-emerald-400" />;
+      case 'ENTREGA': return <Clock className="w-5 h-5 text-[#ff003c]" />;
+      case 'SUPORTE': return <HelpCircle className="w-5 h-5 text-amber-400" />;
       case 'REGRAS': default: return <Shield className="w-5 h-5 text-[#ff003c]" />;
     }
   };
@@ -27,15 +27,15 @@ export const TermsSection: React.FC = () => {
       <div className="hud-card p-8 md:p-12 mb-12 border-l-4 border-[#ff003c] bg-[#12121c]/90">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div>
-            <div className="flex items-center gap-2 font-mono text-xs text-[#ff003c] uppercase tracking-widest mb-2">
-              <Sparkles className="w-4 h-4 animate-spin" />
-              <span>// REGRAS DE COMPRA E ACORDO DO CLIENTE //</span>
+            <div className="flex items-center gap-2 font-mono text-xs text-[#ff003c] uppercase tracking-widest mb-2 font-bold">
+              <span className="w-2 h-2 rounded-full bg-[#ff003c]" />
+              <span>REGULAMENTO E CONTRATO DE PRESTAÇÃO DE SERVIÇOS</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-black font-display text-white uppercase tracking-tight">
-              TERMOS & <span className="text-[#ff003c] neon-glow-text">CONDIÇÕES</span>
+              TERMOS E <span className="text-[#ff003c]">CONDIÇÕES DE COMPRA</span>
             </h1>
             <p className="text-gray-300 max-w-2xl mt-3 text-sm sm:text-base font-light leading-relaxed">
-              Leia atentamente todas as regras de compra, prazos de entrega e deveres da comunidade antes de realizar qualquer pagamento na <strong className="text-white font-bold">{config.storeName}</strong>.
+              Leia atentamente todas as diretrizes contratuais, acordos de nível de serviço (SLA) e deveres das partes antes de formalizar qualquer transação na <strong className="text-white font-bold">{config.storeName}</strong>.
             </p>
           </div>
 
@@ -50,7 +50,7 @@ export const TermsSection: React.FC = () => {
               onClick={() => setActiveView('home')}
               className="btn-cyber py-2 px-4 text-xs text-center"
             >
-              VOLTAR PARA PRODUTOS
+              RETORNAR AO CATÁLOGO
             </button>
           </div>
         </div>
@@ -73,7 +73,7 @@ export const TermsSection: React.FC = () => {
                 className="w-full px-6 py-5 flex items-center justify-between gap-4 text-left focus:outline-none"
               >
                 <div className="flex items-center gap-4">
-                  <div className="p-2.5 bg-[#0b0b0b] border border-gray-800 flex items-center justify-center">
+                  <div className="p-2.5 bg-[#0b0b0b] border border-gray-800 flex items-center justify-center rounded-lg">
                     {getCategoryIcon(term.category)}
                   </div>
                   <div>
@@ -82,8 +82,8 @@ export const TermsSection: React.FC = () => {
                         #{String(index + 1).padStart(2, '0')}
                       </span>
                       {term.isImportant && (
-                        <span className="px-2 py-0.5 bg-[#ff003c]/20 border border-[#ff003c]/50 text-[10px] font-mono text-[#ff003c] uppercase tracking-wider">
-                          IMPORTANTE
+                        <span className="px-2 py-0.5 bg-[#ff003c]/20 border border-[#ff003c]/50 text-[10px] font-mono text-[#ff003c] uppercase tracking-wider rounded">
+                          CLÁUSULA ESSENCIAL
                         </span>
                       )}
                     </div>
@@ -93,7 +93,7 @@ export const TermsSection: React.FC = () => {
                   </div>
                 </div>
 
-                <div className={`p-1.5 text-[#ff003c] border border-[#ff003c]/30 bg-[#0b0b0b] transition-transform duration-300 ${
+                <div className={`p-1.5 text-[#ff003c] border border-[#ff003c]/30 bg-[#0b0b0b] rounded transition-transform duration-300 ${
                   isOpen ? 'rotate-180 bg-[#ff003c]/15' : ''
                 }`}>
                   <ChevronDown className="w-5 h-5" />
@@ -103,13 +103,13 @@ export const TermsSection: React.FC = () => {
               {/* Accordion Content Body */}
               {isOpen && (
                 <div className="px-6 pb-6 pt-2 border-t border-gray-800/60 animate-fadeIn text-sm sm:text-base text-gray-200 font-light leading-relaxed">
-                  <div className="p-4 bg-[#0b0b0b]/80 border-l-2 border-[#ff003c]">
+                  <div className="p-4 bg-[#0b0b0b]/80 border-l-2 border-[#ff003c] rounded-r">
                     {term.content}
                   </div>
                   {term.title.toLowerCase().includes('avaliação') && (
-                    <div className="mt-3 flex items-center gap-2 text-xs font-mono text-yellow-400 bg-yellow-950/30 p-2.5 border border-yellow-500/30">
-                      <Star className="w-4 h-4 text-yellow-400 fill-yellow-400 flex-shrink-0" />
-                      <span>Lembre-se: O canal para feedback no nosso Discord é o <strong>🌟・avaliações</strong>!</span>
+                    <div className="mt-3 flex items-center gap-2 text-xs font-mono text-amber-300 bg-amber-950/30 p-2.5 border border-amber-500/30 rounded">
+                      <Star className="w-4 h-4 text-amber-400 fill-amber-400 flex-shrink-0" />
+                      <span>Nota corporativa: O registro formal de avaliações técnicas e feedback é efetuado no canal correspondente do nosso servidor de suporte.</span>
                     </div>
                   )}
                 </div>
@@ -120,16 +120,16 @@ export const TermsSection: React.FC = () => {
       </div>
 
       {/* Warning Box at bottom */}
-      <div className="mt-12 p-6 bg-[#161214] border-2 border-[#ff003c]/60 flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left neon-glow">
-        <div className="p-3 bg-[#ff003c]/20 border border-[#ff003c] text-[#ff003c] flex-shrink-0">
-          <AlertTriangle className="w-8 h-8 animate-pulse" />
+      <div className="mt-12 p-6 bg-[#161214] border-2 border-[#ff003c]/60 flex flex-col sm:flex-row items-center gap-5 text-center sm:text-left rounded-xl shadow-lg">
+        <div className="p-3 bg-[#ff003c]/20 border border-[#ff003c] text-[#ff003c] flex-shrink-0 rounded-xl">
+          <AlertTriangle className="w-8 h-8" />
         </div>
         <div className="flex-1">
           <h4 className="text-base font-bold text-white uppercase font-display">
-            TERMO DE COMPROMISSO DO COMPRADOR
+            DECLARAÇÃO DE CONFORMIDADE E ACEITE CONTRATUAL
           </h4>
           <p className="text-xs sm:text-sm text-gray-300 mt-1">
-            Ao efetuar qualquer transferência via PIX no fechamento do ticket em nosso servidor do Discord, você declara formalmente que leu, compreendeu e concorda em 100% com os Termos & Condições listados acima.
+            Ao formalizar qualquer transação financeira no portal ou canal oficial de atendimento, o contratante declara expressamente ter lido, compreendido e acatado a integralidade dos Termos e Condições aqui estipulados.
           </p>
         </div>
         <a 
@@ -138,7 +138,7 @@ export const TermsSection: React.FC = () => {
           rel="noopener noreferrer"
           className="btn-cyber py-3 px-6 text-xs flex-shrink-0"
         >
-          CONCORDAR & ENTRAR NO DISCORD
+          ACATAR & ACESSAR CANAL DE SUPORTE
         </a>
       </div>
     </section>

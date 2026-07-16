@@ -181,18 +181,18 @@ export const CheckoutPage: React.FC = () => {
             <CheckCircle2 className="w-10 h-10" />
           </div>
           <div className="text-[11px] font-semibold text-emerald-400 uppercase tracking-widest">
-            • Pedido registrado e notificado
+            • Transação registrada com sucesso
           </div>
           <h2 className="text-2xl font-extrabold font-display text-white tracking-tight">
-            Pedido pronto para entrega!
+            Pedido liberado para entrega!
           </h2>
           <div className="bg-slate-900/80 border border-white/10 p-4 w-full text-left rounded-xl space-y-2 text-xs">
             <div className="flex items-center gap-2 text-emerald-400 font-bold">
               <Copy className="w-4 h-4" />
-              <span>O recibo foi copiado para sua área de transferência!</span>
+              <span>O comprovante foi copiado para sua área de transferência!</span>
             </div>
             <p className="text-slate-300 leading-relaxed">
-              Enviamos a notificação ao Discord e abrimos o servidor em nova aba. Vá ao canal de **pedidos / tickets**, abra seu ticket e **cole (`Ctrl+V`)** o recibo para liberação dos seus itens.
+              Enviamos a notificação ao sistema corporativo e abrimos o portal de suporte em uma nova aba. Acesse o nosso canal oficial de atendimento, inicie o chamado e **cole (`Ctrl+V`)** o comprovante para liberação dos seus itens.
             </p>
           </div>
           <div className="flex flex-wrap gap-2.5 justify-center w-full pt-1">
@@ -202,14 +202,14 @@ export const CheckoutPage: React.FC = () => {
               rel="noopener noreferrer"
               className="btn-cyber py-2.5 px-5 text-xs"
             >
-              <span>Ir ao Servidor Discord Agora</span>
+              <span>Acessar Central de Suporte</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
             <button 
               onClick={() => { setOrderCompleted(false); setActiveView('home'); }}
               className="btn-cyber-outline py-2.5 px-5 text-xs"
             >
-              <span>Continuar Explorando</span>
+              <span>Retornar ao Catálogo</span>
             </button>
           </div>
         </div>
@@ -261,7 +261,7 @@ export const CheckoutPage: React.FC = () => {
               </h2>
               <button 
                 onClick={clearCart}
-                className="text-[11px] text-red-400 hover:text-red-300 font-semibold flex items-center gap-1 bg-transparent border-none cursor-pointer"
+                className="text-xs text-red-400 hover:text-white font-semibold flex items-center gap-1.5 bg-[#121218] hover:bg-red-600 border border-white/10 px-2.5 py-1 rounded-md transition-colors cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Esvaziar</span>
@@ -275,7 +275,7 @@ export const CheckoutPage: React.FC = () => {
                     <img 
                       src={item.product.imageUrl} 
                       alt={item.product.name} 
-                      className="w-11 h-11 object-cover rounded-lg border border-slate-700"
+                      className="w-8 h-8 object-cover rounded-md border border-slate-700 flex-shrink-0"
                     />
                     <div>
                       <div className="text-[9px] font-bold text-[#ff003c] uppercase tracking-wider">
@@ -292,10 +292,10 @@ export const CheckoutPage: React.FC = () => {
 
                   <div className="flex items-center gap-3">
                     {/* Quantity Controls */}
-                    <div className="flex items-center bg-[#1e1b29] border border-white/10 rounded-lg p-0.5">
+                    <div className="flex items-center bg-[#1e1b29] border border-white/10 rounded-lg p-0.5 gap-1">
                       <button 
                         onClick={() => updateCartQuantity(item.product.id, item.quantity - 1)}
-                        className="p-1 hover:bg-white/10 text-white rounded transition-colors"
+                        className="w-6 h-6 flex items-center justify-center bg-[#121218] hover:bg-[#ff003c] border border-white/10 text-white rounded transition-colors"
                         title="Diminuir quantidade"
                       >
                         <Minus className="w-3 h-3" />
@@ -305,7 +305,7 @@ export const CheckoutPage: React.FC = () => {
                       </span>
                       <button 
                         onClick={() => updateCartQuantity(item.product.id, item.quantity + 1)}
-                        className="p-1 hover:bg-white/10 text-white rounded transition-colors"
+                        className="w-6 h-6 flex items-center justify-center bg-[#121218] hover:bg-[#ff003c] border border-white/10 text-white rounded transition-colors"
                         title="Aumentar quantidade"
                       >
                         <Plus className="w-3 h-3" />
@@ -321,7 +321,7 @@ export const CheckoutPage: React.FC = () => {
 
                     <button 
                       onClick={() => removeFromCart(item.product.id)}
-                      className="p-1 text-slate-500 hover:text-red-400 transition-colors"
+                      className="w-7 h-7 flex items-center justify-center bg-[#121218] hover:bg-red-600 border border-white/10 text-slate-300 hover:text-white rounded-md transition-colors"
                       title="Remover item"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -345,11 +345,12 @@ export const CheckoutPage: React.FC = () => {
                 placeholder="Digite o cupom (ex: BLOOD10)"
                 value={couponInput}
                 onChange={(e) => setCouponInput(e.target.value)}
-                className="flex-1 min-w-[180px] px-3.5 py-2 bg-[#16141e] border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-[#ff003c] uppercase transition-colors"
+                style={{ backgroundColor: '#141622', color: '#ffffff' }}
+                className="flex-1 min-w-[180px] px-4 py-2.5 bg-[#141622] border border-white/12 rounded-xl text-white text-xs font-medium focus:outline-none focus:border-[#ff003c] uppercase placeholder:text-slate-500 transition-colors"
               />
               <button 
                 type="submit"
-                className="btn-cyber py-2 px-4 text-xs"
+                className="btn-cyber py-2.5 px-5 text-xs"
               >
                 <span>Aplicar</span>
               </button>
@@ -400,7 +401,7 @@ export const CheckoutPage: React.FC = () => {
 
             <div className="space-y-3">
               <div>
-                <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1">
+                <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
                   Seu Nickname do Discord (Obrigatório) *
                 </label>
                 <input 
@@ -408,12 +409,13 @@ export const CheckoutPage: React.FC = () => {
                   placeholder="Ex: lucas.gamer ou Lucas#1234"
                   value={discordNick}
                   onChange={(e) => setDiscordNick(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-[#16141e] border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-[#ff003c] transition-colors"
+                  style={{ backgroundColor: '#141622', color: '#ffffff' }}
+                  className="w-full px-4 py-2.5 bg-[#141622] border border-white/12 rounded-xl text-white text-xs font-medium focus:outline-none focus:border-[#ff003c] placeholder:text-slate-500 transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1">
+                <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
                   E-mail de Contato / Recibo (Opcional)
                 </label>
                 <input 
@@ -421,7 +423,8 @@ export const CheckoutPage: React.FC = () => {
                   placeholder="Ex: seuemail@gmail.com"
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
-                  className="w-full px-3.5 py-2 bg-[#16141e] border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-[#ff003c] transition-colors"
+                  style={{ backgroundColor: '#141622', color: '#ffffff' }}
+                  className="w-full px-4 py-2.5 bg-[#141622] border border-white/12 rounded-xl text-white text-xs font-medium focus:outline-none focus:border-[#ff003c] placeholder:text-slate-500 transition-colors"
                 />
               </div>
 

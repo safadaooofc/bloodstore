@@ -51,27 +51,23 @@ html, body {
   background: var(--color-neon-red);
 }
 
-/* Cyber grid background overlay -> soft subtle grid */
-.cyber-grid-bg {
+/* Professional background without cyber grid */
+.cyber-grid-bg, .professional-bg {
   background-color: var(--color-bg);
-  background-image: 
-    linear-gradient(rgba(255, 0, 60, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 0, 60, 0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
-  background-position: center center;
+  background-image: none;
 }
 
-/* Scanline effect -> disabled/empty for clean reading */
+/* Scanline effect -> disabled for clean corporate reading */
 .scanlines::before {
   display: none;
 }
 
-/* Glow effects -> clean soft shadows */
+/* Glow effects -> clean executive soft shadows */
 .neon-glow {
-  box-shadow: 0 4px 20px -2px rgba(255, 0, 60, 0.35);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
 }
 .neon-glow-lg {
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.35), 0 0 24px rgba(255, 0, 60, 0.25);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.45);
 }
 .neon-glow-text {
   text-shadow: none;
@@ -83,27 +79,27 @@ html, body {
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .neon-border:hover {
-  border-color: var(--color-neon-red);
-  box-shadow: 0 4px 16px rgba(255, 0, 60, 0.25);
+  border-color: rgba(255, 0, 60, 0.6);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-/* HUD Corners & Cards -> Clean Soft Rounded Cards */
-.hud-card {
+/* Cards -> Clean Executive Corporate Cards */
+.hud-card, .corporate-card {
   position: relative;
-  background: rgba(15, 16, 24, 0.82);
+  background: rgba(15, 16, 24, 0.88);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 16px;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.35);
 }
-.hud-card::before, .hud-card::after {
+.hud-card::before, .hud-card::after, .corporate-card::before, .corporate-card::after {
   display: none;
 }
-.hud-card:hover {
+.hud-card:hover, .corporate-card:hover {
   transform: translateY(-2px);
   border-color: rgba(255, 0, 60, 0.4);
-  box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.45), 0 0 20px rgba(255, 0, 60, 0.15);
+  box-shadow: 0 12px 32px -6px rgba(0, 0, 0, 0.45);
 }
 
 /* Buttons -> Clean, Professional, Rounded */
@@ -162,11 +158,11 @@ html, body {
 
 /* Animations */
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 4px 14px rgba(255, 0, 60, 0.35); }
-  50% { box-shadow: 0 6px 24px rgba(255, 0, 60, 0.65); }
+  0%, 100% { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
+  50% { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25); }
 }
 .animate-pulse-glow {
-  animation: pulse-glow 3s infinite ease-in-out;
+  animation: none !important;
 }
 
 @keyframes float {
@@ -750,12 +746,30 @@ html, body {
   }
 }
 
+/* Global Input & Button Resets for Dark Corporate Theme */
+input, textarea, select {
+  background-color: #141622 !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+}
+input::placeholder, textarea::placeholder {
+  color: #64748b !important;
+}
+
 /* Footer Box */
 .footer-container {
-  background: #090d16;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 4rem 1.5rem 2rem 1.5rem;
-  margin-top: 6rem;
+  position: relative;
+  z-index: 30;
+  width: 100%;
+  background: #090a0f;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 4rem 1.5rem 2.5rem 1.5rem;
+  margin-top: 4rem;
+  color: #f8fafc;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 .footer-grid {
   max-width: 1280px;
