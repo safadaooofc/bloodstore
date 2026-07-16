@@ -217,17 +217,17 @@ export const CheckoutPage: React.FC = () => {
     );
   }
 
-  return (
-    <section className="container-main py-8 animate-fadeIn max-w-6xl mx-auto">
+    return (
+    <section className="container-main py-6 animate-fadeIn max-w-7xl mx-auto">
       {/* Top Header Bar */}
-      <div className="mb-6 border-b border-white/10 pb-4 flex flex-wrap items-center justify-between gap-3">
+      <div className="mb-5 border-b border-white/10 pb-3 flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[#ff003c] uppercase tracking-wider mb-0.5">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>• Finalização Rápida</span>
+            <span>• Painel Executivo de Conclusão</span>
           </div>
-          <h1 className="text-2xl font-extrabold font-display text-white tracking-tight">
-            Checkout & <span className="text-[#ff003c]">Pagamento</span>
+          <h1 className="text-xl font-extrabold font-display text-white tracking-tight">
+            Checkout & <span className="text-[#ff003c]">Liberação Rápida</span>
           </h1>
         </div>
 
@@ -236,172 +236,221 @@ export const CheckoutPage: React.FC = () => {
           className="btn-cyber-outline text-xs py-1.5 px-3.5"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Voltar à Loja</span>
+          <span>Voltar ao Catálogo</span>
         </button>
       </div>
 
       {/* Error Alert Box */}
       {validationError && (
-        <div className="mb-5 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-2.5 text-red-400 text-xs font-medium animate-fadeIn">
+        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl flex items-center gap-2.5 text-red-400 text-xs font-medium animate-fadeIn">
           <AlertCircle className="w-4 h-4 flex-shrink-0" />
           <span>{validationError}</span>
         </div>
       )}
 
-      {/* Main Grid: Compact 2 Columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        {/* Left Column (2 cols width on desktop): Cart Items & Buyer Form */}
-        <div className="lg:col-span-2 space-y-5">
-          {/* Box 1: Items List */}
-          <div className="hud-card p-4 sm:p-5 border-[#ff003c]/30">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
-              <h2 className="text-sm font-bold font-display text-white flex items-center gap-2">
-                <ShoppingCart className="w-4 h-4 text-[#ff003c]" />
-                <span>Itens Selecionados ({cart.reduce((a, b) => a + b.quantity, 0)})</span>
-              </h2>
-              <button 
-                onClick={clearCart}
-                className="text-xs text-red-400 hover:text-white font-semibold flex items-center gap-1.5 bg-[#121218] hover:bg-red-600 border border-white/10 px-2.5 py-1 rounded-md transition-colors cursor-pointer"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>Esvaziar</span>
-              </button>
-            </div>
+      {/* Main Grid: Compact 3-Column Side-by-Side Dashboard (No Vertical Scrolling) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 items-start">
+        
+        {/* COLUNA 1: ITENS DO CARRINHO & CUPOM */}
+        <div className="space-y-4">
+          <div className="hud-card p-4 border-[#ff003c]/30 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between border-b border-white/10 pb-2.5 mb-3">
+                <h2 className="text-xs font-bold font-display text-white flex items-center gap-2">
+                  <ShoppingCart className="w-4 h-4 text-[#ff003c]" />
+                  <span>Itens Selecionados ({cart.reduce((a, b) => a + b.quantity, 0)})</span>
+                </h2>
+                <button 
+                  onClick={clearCart}
+                  className="text-xs text-red-400 hover:text-white font-semibold flex items-center gap-1 bg-[#121218] hover:bg-red-600 border border-white/10 px-2 py-0.5 rounded transition-colors cursor-pointer"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  <span>Esvaziar</span>
+                </button>
+              </div>
 
-            <div className="space-y-2.5">
-              {cart.map(item => (
-                <div key={item.product.id} className="flex flex-wrap items-center justify-between gap-3 p-3 bg-[#16141e]/80 border border-white/10 rounded-xl">
-                  <div className="flex items-center gap-3 flex-1 min-w-[200px]">
-                    <img 
-                      src={item.product.imageUrl} 
-                      alt={item.product.name} 
-                      className="w-8 h-8 object-cover rounded-md border border-slate-700 flex-shrink-0"
-                    />
-                    <div>
-                      <div className="text-[9px] font-bold text-[#ff003c] uppercase tracking-wider">
-                        • {item.product.tag}
+              {/* Compact Scrollable Items List */}
+              <div className="space-y-2 max-h-[250px] overflow-y-auto pr-1">
+                {cart.map(item => (
+                  <div key={item.product.id} className="flex items-center justify-between gap-2 p-2 bg-[#16141e]/80 border border-white/10 rounded-lg">
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <img 
+                        src={item.product.imageUrl} 
+                        alt={item.product.name} 
+                        className="w-8 h-8 object-cover rounded border border-slate-700 flex-shrink-0"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[9px] font-bold text-[#ff003c] uppercase truncate">
+                          • {item.product.tag}
+                        </div>
+                        <div className="font-bold text-white text-xs truncate">
+                          {item.product.name}
+                        </div>
+                        <div className="text-[10px] text-slate-400">
+                          R$ {item.product.price.toFixed(2).replace('.', ',')}
+                        </div>
                       </div>
-                      <div className="font-bold text-white text-xs font-display">
-                        {item.product.name}
+                    </div>
+
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <div className="flex items-center bg-[#1e1b29] border border-white/10 rounded p-0.5 gap-1">
+                        <button 
+                          onClick={() => updateCartQuantity(item.product.id, item.quantity - 1)}
+                          className="w-5 h-5 flex items-center justify-center bg-[#121218] hover:bg-[#ff003c] border border-white/10 text-white rounded text-[10px] transition-colors"
+                        >
+                          <Minus className="w-2.5 h-2.5" />
+                        </button>
+                        <span className="px-1.5 text-xs font-bold text-white">
+                          {item.quantity}
+                        </span>
+                        <button 
+                          onClick={() => updateCartQuantity(item.product.id, item.quantity + 1)}
+                          className="w-5 h-5 flex items-center justify-center bg-[#121218] hover:bg-[#ff003c] border border-white/10 text-white rounded text-[10px] transition-colors"
+                        >
+                          <Plus className="w-2.5 h-2.5" />
+                        </button>
                       </div>
-                      <div className="text-[11px] text-slate-400">
-                        Unitário: R$ {item.product.price.toFixed(2).replace('.', ',')}
-                      </div>
+
+                      <button 
+                        onClick={() => removeFromCart(item.product.id)}
+                        className="w-6 h-6 flex items-center justify-center bg-[#121218] hover:bg-red-600 border border-white/10 text-slate-300 hover:text-white rounded transition-colors"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
                     </div>
                   </div>
+                ))}
+              </div>
+            </div>
 
-                  <div className="flex items-center gap-3">
-                    {/* Quantity Controls */}
-                    <div className="flex items-center bg-[#1e1b29] border border-white/10 rounded-lg p-0.5 gap-1">
-                      <button 
-                        onClick={() => updateCartQuantity(item.product.id, item.quantity - 1)}
-                        className="w-6 h-6 flex items-center justify-center bg-[#121218] hover:bg-[#ff003c] border border-white/10 text-white rounded transition-colors"
-                        title="Diminuir quantidade"
-                      >
-                        <Minus className="w-3 h-3" />
-                      </button>
-                      <span className="px-2.5 text-xs font-bold text-white">
-                        {item.quantity}
-                      </span>
-                      <button 
-                        onClick={() => updateCartQuantity(item.product.id, item.quantity + 1)}
-                        className="w-6 h-6 flex items-center justify-center bg-[#121218] hover:bg-[#ff003c] border border-white/10 text-white rounded transition-colors"
-                        title="Aumentar quantidade"
-                      >
-                        <Plus className="w-3 h-3" />
-                      </button>
-                    </div>
+            {/* Cupom de Desconto integrado na mesma coluna */}
+            <div className="mt-4 pt-3 border-t border-white/10">
+              <h3 className="text-xs font-bold text-white flex items-center gap-1.5 mb-2">
+                <Tag className="w-3.5 h-3.5 text-[#ff003c]" />
+                <span>Cupom de Desconto</span>
+              </h3>
 
-                    {/* Subtotal & Delete */}
-                    <div className="text-right min-w-[75px]">
-                      <div className="font-extrabold text-white text-xs">
-                        R$ {(item.product.price * item.quantity).toFixed(2).replace('.', ',')}
-                      </div>
-                    </div>
+              <form onSubmit={handleApplyCoupon} className="flex gap-2 items-center">
+                <input 
+                  type="text"
+                  placeholder="EX: BLOOD10"
+                  value={couponInput}
+                  onChange={(e) => setCouponInput(e.target.value)}
+                  style={{ backgroundColor: '#141622', color: '#ffffff' }}
+                  className="flex-1 px-3 py-1.5 bg-[#141622] border border-white/12 rounded-lg text-white text-xs font-medium focus:outline-none focus:border-[#ff003c] uppercase placeholder:text-slate-500 transition-colors"
+                />
+                <button 
+                  type="submit"
+                  className="btn-cyber py-1.5 px-3 text-xs"
+                >
+                  <span>Aplicar</span>
+                </button>
+              </form>
 
+              {couponMessage && (
+                <div className={`mt-2 p-2 rounded-lg text-[11px] flex items-center justify-between border ${
+                  couponMessage.success 
+                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
+                    : 'bg-red-500/10 border-red-500/30 text-red-400'
+                }`}>
+                  <span>{couponMessage.text}</span>
+                  {couponMessage.success && appliedCoupon && (
                     <button 
-                      onClick={() => removeFromCart(item.product.id)}
-                      className="w-7 h-7 flex items-center justify-center bg-[#121218] hover:bg-red-600 border border-white/10 text-slate-300 hover:text-white rounded-md transition-colors"
-                      title="Remover item"
+                      type="button"
+                      onClick={() => { setAppliedCoupon(null); setCouponMessage(null); setCouponInput(''); }}
+                      className="underline font-semibold hover:opacity-80 ml-2"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      Remover
                     </button>
-                  </div>
+                  )}
                 </div>
-              ))}
+              )}
             </div>
           </div>
+        </div>
 
-          {/* Box 2: Coupon */}
-          <div className="hud-card p-4 sm:p-5">
-            <h3 className="text-sm font-bold font-display text-white flex items-center gap-2 mb-3">
-              <Tag className="w-4 h-4 text-[#ff003c]" />
-              <span>Cupom de Desconto</span>
-            </h3>
-
-            <form onSubmit={handleApplyCoupon} className="flex flex-wrap gap-2.5 items-center">
-              <input 
-                type="text"
-                placeholder="Digite o cupom (ex: BLOOD10)"
-                value={couponInput}
-                onChange={(e) => setCouponInput(e.target.value)}
-                style={{ backgroundColor: '#141622', color: '#ffffff' }}
-                className="flex-1 min-w-[180px] px-4 py-2.5 bg-[#141622] border border-white/12 rounded-xl text-white text-xs font-medium focus:outline-none focus:border-[#ff003c] uppercase placeholder:text-slate-500 transition-colors"
-              />
-              <button 
-                type="submit"
-                className="btn-cyber py-2.5 px-5 text-xs"
-              >
-                <span>Aplicar</span>
-              </button>
-            </form>
-
-            {couponMessage && (
-              <div className={`mt-3 p-2.5 rounded-xl text-xs flex items-center justify-between border ${
-                couponMessage.success 
-                  ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400' 
-                  : 'bg-red-500/10 border-red-500/30 text-red-400'
-              }`}>
-                <span>{couponMessage.text}</span>
-                {couponMessage.success && appliedCoupon && (
-                  <button 
-                    type="button"
-                    onClick={() => { setAppliedCoupon(null); setCouponMessage(null); setCouponInput(''); }}
-                    className="underline font-semibold hover:opacity-80 ml-2"
-                  >
-                    Remover
-                  </button>
-                )}
-              </div>
-            )}
-          </div>
-
-          {/* Box 3: Buyer Nickname & Verification */}
-          <div className="hud-card p-4 sm:p-5 border-t border-[#ff003c]/40">
-            <h3 className="text-sm font-bold font-display text-white flex items-center gap-2 mb-1">
+        {/* COLUNA 2: SELEÇÃO DE LIBERAÇÃO (PIX ou DISCORD) & DADOS */}
+        <div className="space-y-4">
+          <div className="hud-card p-4 border-[#ff003c]/40">
+            <h3 className="text-xs font-bold font-display text-white flex items-center gap-1.5 border-b border-white/10 pb-2.5 mb-3">
               <ShieldCheck className="w-4 h-4 text-[#ff003c]" />
-              <span>Dados de Entrega (Discord)</span>
+              <span>Selecione o Método de Liberação</span>
             </h3>
-            <p className="text-slate-400 text-xs mb-4 leading-relaxed">
-              Preencha seu Nickname correto do Discord para liberação automática do produto no estoque.
-            </p>
 
-            {currentUser && (
-              <div className="p-3 bg-[#16141e] border border-[#ff003c]/40 rounded-xl flex items-center justify-between mb-3.5">
-                <div className="flex items-center gap-2.5">
-                  <img src={currentUser.avatarUrl} alt="Avatar" className="w-7 h-7 rounded-full border border-[#ff003c]" />
-                  <div>
-                    <div className="text-xs font-bold text-white">Conectado como {currentUser.globalName}</div>
-                    <div className="text-[10px] text-[#ff003c] font-mono">@{currentUser.username} • Verificado</div>
+            {/* Sleek Selection Buttons with Generated Crest Icons */}
+            <div className="grid grid-cols-2 gap-2.5 mb-4">
+              <button
+                type="button"
+                onClick={() => { setPaymentMethod('pix'); setPixGenerated(false); }}
+                className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden flex flex-col justify-between cursor-pointer ${
+                  paymentMethod === 'pix'
+                    ? 'bg-[#161424] border-[#ff003c] shadow-[0_0_15px_rgba(255,0,60,0.25)] ring-1 ring-[#ff003c]'
+                    : 'bg-[#121218] border-white/10 hover:border-white/25 opacity-70 hover:opacity-100'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full mb-2">
+                  <img src="/fotos/pix_payment_icon.png" alt="PIX" className="w-8 h-8 rounded-md border border-[#ff003c]/50 object-cover" />
+                  {paymentMethod === 'pix' && (
+                    <span className="w-4 h-4 rounded-full bg-[#ff003c] flex items-center justify-center text-white">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-white leading-tight">PIX Instantâneo</div>
+                  <div className="text-[10px] text-emerald-400 font-semibold mt-0.5 flex items-center gap-1">
+                    <span>Aprovação Bot Automática</span>
                   </div>
                 </div>
-                <UserCheck className="w-4 h-4 text-[#ff003c]" />
-              </div>
-            )}
+              </button>
 
-            <div className="space-y-3">
+              <button
+                type="button"
+                onClick={() => { setPaymentMethod('discord'); setPixGenerated(false); }}
+                className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden flex flex-col justify-between cursor-pointer ${
+                  paymentMethod === 'discord'
+                    ? 'bg-[#161424] border-[#ff003c] shadow-[0_0_15px_rgba(255,0,60,0.25)] ring-1 ring-[#ff003c]'
+                    : 'bg-[#121218] border-white/10 hover:border-white/25 opacity-70 hover:opacity-100'
+                }`}
+              >
+                <div className="flex items-center justify-between w-full mb-2">
+                  <img src="/fotos/discord_delivery_icon.png" alt="Discord" className="w-8 h-8 rounded-md border border-[#ff003c]/50 object-cover" />
+                  {paymentMethod === 'discord' && (
+                    <span className="w-4 h-4 rounded-full bg-[#ff003c] flex items-center justify-center text-white">
+                      <Check className="w-2.5 h-2.5 stroke-[3]" />
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-white leading-tight">Ticket no Discord</div>
+                  <div className="text-[10px] text-slate-300 font-semibold mt-0.5 flex items-center gap-1">
+                    <span>Atendimento Assistido</span>
+                  </div>
+                </div>
+              </button>
+            </div>
+
+            {/* Buyer Delivery Form */}
+            <div className="space-y-3 pt-2 border-t border-white/10">
+              <div className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">
+                Dados de Entrega do Ativo
+              </div>
+
+              {currentUser && (
+                <div className="p-2.5 bg-[#16141e] border border-[#ff003c]/40 rounded-lg flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <img src={currentUser.avatarUrl} alt="Avatar" className="w-6 h-6 rounded-full border border-[#ff003c]" />
+                    <div>
+                      <div className="text-xs font-bold text-white">{currentUser.globalName}</div>
+                      <div className="text-[9px] text-[#ff003c] font-mono">@{currentUser.username} • Verificado</div>
+                    </div>
+                  </div>
+                  <UserCheck className="w-4 h-4 text-[#ff003c]" />
+                </div>
+              )}
+
               <div>
-                <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
+                <label className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider mb-1">
                   Seu Nickname do Discord (Obrigatório) *
                 </label>
                 <input 
@@ -410,13 +459,13 @@ export const CheckoutPage: React.FC = () => {
                   value={discordNick}
                   onChange={(e) => setDiscordNick(e.target.value)}
                   style={{ backgroundColor: '#141622', color: '#ffffff' }}
-                  className="w-full px-4 py-2.5 bg-[#141622] border border-white/12 rounded-xl text-white text-xs font-medium focus:outline-none focus:border-[#ff003c] placeholder:text-slate-500 transition-colors"
+                  className="w-full px-3.5 py-2 bg-[#141622] border border-white/12 rounded-lg text-white text-xs font-medium focus:outline-none focus:border-[#ff003c] placeholder:text-slate-500 transition-colors"
                 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                  E-mail de Contato / Recibo (Opcional)
+                <label className="block text-[10px] font-semibold text-slate-300 uppercase tracking-wider mb-1">
+                  E-mail para Recibo e Contato (Opcional)
                 </label>
                 <input 
                   type="text"
@@ -424,18 +473,18 @@ export const CheckoutPage: React.FC = () => {
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
                   style={{ backgroundColor: '#141622', color: '#ffffff' }}
-                  className="w-full px-4 py-2.5 bg-[#141622] border border-white/12 rounded-xl text-white text-xs font-medium focus:outline-none focus:border-[#ff003c] placeholder:text-slate-500 transition-colors"
+                  className="w-full px-3.5 py-2 bg-[#141622] border border-white/12 rounded-lg text-white text-xs font-medium focus:outline-none focus:border-[#ff003c] placeholder:text-slate-500 transition-colors"
                 />
               </div>
 
-              <label className="flex items-start gap-2.5 cursor-pointer pt-1">
+              <label className="flex items-start gap-2 cursor-pointer pt-1">
                 <input 
                   type="checkbox"
                   checked={isInServer}
                   onChange={(e) => setIsInServer(e.target.checked)}
                   className="w-3.5 h-3.5 rounded accent-[#ff003c] mt-0.5"
                 />
-                <span className="text-[11px] text-slate-300 leading-relaxed">
+                <span className="text-[10px] text-slate-300 leading-tight">
                   Confirmo que estou no servidor oficial <strong className="text-white">{config.storeName}</strong> no Discord e que meu nickname está correto.
                 </span>
               </label>
@@ -443,103 +492,50 @@ export const CheckoutPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Column (1 col width on desktop): Summary & Payment Selection */}
-        <div className="space-y-5 sticky top-20">
-          {/* Box 4: Financial Summary */}
-          <div className="hud-card p-4 sm:p-5 border-[#ff003c]/40">
-            <h3 className="text-sm font-bold font-display text-white border-b border-white/10 pb-3 mb-3">
-              Resumo Financeiro
-            </h3>
+        {/* COLUNA 3: RESUMO FINANCEIRO & CONCLUSÃO */}
+        <div className="space-y-4">
+          <div className="hud-card p-4 border-[#ff003c]/50 flex flex-col justify-between">
+            <div>
+              <h3 className="text-xs font-bold font-display text-white border-b border-white/10 pb-2.5 mb-3 flex items-center justify-between">
+                <span>Resumo Financeiro</span>
+                <span className="text-[10px] font-mono text-[#ff003c]">{paymentMethod === 'pix' ? 'PIX ATIVO' : 'TICKET ATIVO'}</span>
+              </h3>
 
-            <div className="space-y-2.5 text-xs">
-              <div className="flex justify-between text-slate-400">
-                <span>Subtotal dos Itens:</span>
-                <span className="font-semibold text-white">R$ {subtotal.toFixed(2).replace('.', ',')}</span>
-              </div>
-
-              {appliedCoupon && (
-                <div className="flex justify-between text-emerald-400 font-semibold">
-                  <span>Desconto ({appliedCoupon.code}):</span>
-                  <span>- R$ {discountAmount.toFixed(2).replace('.', ',')}</span>
+              <div className="space-y-2 text-xs mb-4">
+                <div className="flex justify-between text-slate-400">
+                  <span>Subtotal dos Itens:</span>
+                  <span className="font-semibold text-white">R$ {subtotal.toFixed(2).replace('.', ',')}</span>
                 </div>
-              )}
 
-              <div className="flex justify-between text-slate-400">
-                <span>Taxa de Ticket:</span>
-                <span className="text-emerald-400 font-semibold">Grátis</span>
-              </div>
-
-              <div className="border-t border-white/10 pt-3 mt-2 flex justify-between items-baseline">
-                <span className="text-xs font-bold text-white uppercase">Total a Pagar:</span>
-                <span className="text-xl font-extrabold text-[#ff003c]">
-                  R$ {total.toFixed(2).replace('.', ',')}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Box 5: Choose Payment Method */}
-          <div className="hud-card p-4 sm:p-5">
-            <h3 className="text-sm font-bold font-display text-white mb-3">
-              Forma de Pagamento
-            </h3>
-
-            <div className="space-y-2.5">
-              {/* Option A: PIX Automático */}
-              <div 
-                onClick={() => { setPaymentMethod('pix'); setPixGenerated(false); }}
-                className={`p-3.5 rounded-xl cursor-pointer transition-all border ${
-                  paymentMethod === 'pix' 
-                    ? 'bg-[#ff003c]/10 border-[#ff003c] shadow-md shadow-[#ff003c]/15' 
-                    : 'bg-[#16141e]/70 border-white/10 hover:border-white/20'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2 font-bold text-white text-xs">
-                    <QrCode className="w-4 h-4 text-[#ff003c]" />
-                    <span>PIX Instantâneo (Copia & Cola / QR)</span>
+                {appliedCoupon && (
+                  <div className="flex justify-between text-emerald-400 font-semibold">
+                    <span>Desconto ({appliedCoupon.code}):</span>
+                    <span>- R$ {discountAmount.toFixed(2).replace('.', ',')}</span>
                   </div>
-                  <span className="px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[9px] font-bold rounded">
-                    Ágil
+                )}
+
+                <div className="flex justify-between text-slate-400">
+                  <span>Taxa de Emissão:</span>
+                  <span className="text-emerald-400 font-semibold">Grátis</span>
+                </div>
+
+                <div className="border-t border-white/10 pt-2.5 mt-2 flex justify-between items-baseline">
+                  <span className="text-xs font-bold text-white uppercase">Total a Pagar:</span>
+                  <span className="text-xl font-extrabold text-[#ff003c]">
+                    R$ {total.toFixed(2).replace('.', ',')}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
-                  Gere o código PIX e pague via aplicativo do seu banco com liberação automática.
-                </p>
-              </div>
-
-              {/* Option B: Ticket no Discord */}
-              <div 
-                onClick={() => { setPaymentMethod('discord'); setPixGenerated(false); }}
-                className={`p-3.5 rounded-xl cursor-pointer transition-all border ${
-                  paymentMethod === 'discord' 
-                    ? 'bg-[#ff003c]/10 border-[#ff003c] shadow-md shadow-[#ff003c]/15' 
-                    : 'bg-[#16141e]/70 border-white/10 hover:border-white/20'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-2 font-bold text-white text-xs">
-                    <ExternalLink className="w-4 h-4 text-[#ff003c]" />
-                    <span>Pagar via Ticket / Atendimento</span>
-                  </div>
-                  <span className="px-1.5 py-0.5 bg-slate-800 text-slate-300 border border-white/10 text-[9px] font-bold rounded">
-                    Manual
-                  </span>
-                </div>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
-                  Copie o resumo formatado e abra ticket com nossa equipe no servidor.
-                </p>
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className="mt-4">
+            {/* Action Area / Terminal */}
+            <div>
               {paymentMethod === 'pix' && !pixGenerated && (
                 <button 
                   onClick={handleStartPix}
-                  className="btn-cyber w-full py-3 text-xs animate-pulse-glow"
+                  className="btn-cyber w-full py-3 text-xs flex items-center justify-center gap-2 font-bold shadow-lg"
                 >
-                  <QrCode className="w-4 h-4" />
+                  <QrCode className="w-4 h-4 text-[#ff003c]" />
                   <span>Gerar QR Code PIX Agora</span>
                 </button>
               )}
@@ -547,96 +543,85 @@ export const CheckoutPage: React.FC = () => {
               {paymentMethod === 'discord' && (
                 <button 
                   onClick={() => handleFinishAndOpenDiscord('TICKET DISCORD')}
-                  className="w-full py-3 px-4 bg-[#ff003c] hover:bg-[#d90033] text-white font-bold text-xs rounded-xl shadow-lg shadow-[#ff003c]/25 transition-all flex items-center justify-center gap-2"
+                  className="btn-cyber w-full py-3 text-xs flex items-center justify-center gap-2 font-bold shadow-lg"
                 >
-                  <ExternalLink className="w-4 h-4" />
+                  <ExternalLink className="w-4 h-4 text-[#ff003c]" />
                   <span>Abrir Ticket com o Recibo</span>
                 </button>
               )}
-            </div>
-          </div>
 
-          {/* Box 6: Simulated PIX Terminal (Appears when PIX is generated) */}
-          {paymentMethod === 'pix' && pixGenerated && (
-            <div className="hud-card p-4 sm:p-5 border-2 border-emerald-500 animate-fadeIn shadow-lg shadow-emerald-500/10">
-              <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-bold mb-3 border-b border-emerald-500/20 pb-2.5">
-                <Clock className="w-3.5 h-3.5 animate-spin" />
-                <span>QR Code PIX Gerado • Chave Oficial</span>
-              </div>
-
-              {/* Compact QR Code Graphic */}
-              <div className="bg-white p-3 rounded-xl flex flex-col items-center justify-center mb-3.5 border-2 border-emerald-500">
-                <div className="w-32 h-32 bg-black p-1.5 flex items-center justify-center relative rounded-lg overflow-hidden">
-                  <img 
-                    src="/fotos/Gemini_Generated_Image_v1yi2kv1yi2kv1yi.png" 
-                    alt="QR Code" 
-                    className="w-full h-full object-cover filter contrast-200"
-                  />
-                  <div className="absolute inset-4 bg-[#ff003c] rounded-lg flex items-center justify-center text-white font-bold text-[10px] text-center shadow-2xl p-1">
-                    PIX Oficial<br />R$ {total.toFixed(2)}
+              {/* Terminal PIX Compacto */}
+              {paymentMethod === 'pix' && pixGenerated && (
+                <div className="p-3 bg-[#121118] border border-emerald-500/60 rounded-xl animate-fadeIn space-y-3 mt-2">
+                  <div className="flex items-center justify-between text-emerald-400 text-[11px] font-bold border-b border-emerald-500/20 pb-1.5">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5 animate-spin" />
+                      <span>QR Code PIX Gerado</span>
+                    </span>
+                    <span className="px-1.5 py-0.5 bg-emerald-500/20 rounded text-[9px]">Oficial</span>
                   </div>
-                </div>
-                <span className="mt-1.5 text-[10px] font-extrabold text-slate-900 tracking-wider">
-                  ESCANEIE COM O APP BANCÁRIO
-                </span>
-              </div>
 
-              {/* PIX Key and Copia e Cola field */}
-              <div className="space-y-2.5 mb-4 text-xs">
-                <div>
-                  <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
-                    🔑 Chave PIX Oficial:
-                  </label>
-                  <div className="flex gap-1.5">
-                    <input 
-                      type="text" 
-                      readOnly 
-                      value={pixKey} 
-                      className="flex-1 px-2.5 py-2 bg-[#16141e] border border-[#ff003c]/60 rounded-lg text-white font-mono text-xs font-bold focus:outline-none truncate"
-                    />
+                  <div className="bg-white p-2.5 rounded-lg flex flex-col items-center justify-center border border-emerald-500">
+                    <div className="w-24 h-24 bg-black p-1 relative rounded overflow-hidden">
+                      <img 
+                        src="/fotos/pix_payment_icon.png" 
+                        alt="QR Code" 
+                        className="w-full h-full object-cover filter contrast-200"
+                      />
+                      <div className="absolute inset-2 bg-[#ff003c] rounded flex items-center justify-center text-white font-bold text-[8px] text-center p-0.5 shadow-md">
+                        PIX Oficial<br />R$ {total.toFixed(2)}
+                      </div>
+                    </div>
+                    <span className="mt-1 text-[9px] font-extrabold text-slate-900">
+                      ESCANEIE NO APP BANCÁRIO
+                    </span>
+                  </div>
+
+                  <div className="space-y-1.5 text-xs">
+                    <label className="block text-[9px] font-semibold text-slate-400 uppercase tracking-wider">
+                      🔑 Chave PIX / Copia e Cola:
+                    </label>
+                    <div className="flex gap-1">
+                      <input 
+                        type="text" 
+                        readOnly 
+                        value={pixKey} 
+                        style={{ backgroundColor: '#141622', color: '#ffffff' }}
+                        className="flex-1 px-2 py-1 bg-[#141622] border border-[#ff003c]/60 rounded text-white font-mono text-[11px] font-bold focus:outline-none truncate"
+                      />
+                      <button 
+                        onClick={handleCopyKeyOnly}
+                        className="px-2.5 py-1 bg-[#161828] hover:bg-[#ff003c] text-white font-bold text-[11px] border border-[#ff003c]/60 rounded flex items-center gap-1 transition-colors"
+                      >
+                        {copiedKeyOnly ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3 text-[#ff003c]" />}
+                        <span>{copiedKeyOnly ? 'OK' : 'Copiar'}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5 pt-1">
                     <button 
-                      onClick={handleCopyKeyOnly}
-                      className="px-3 py-2 bg-[#ff003c] hover:bg-[#d90033] text-white font-bold text-xs rounded-lg flex items-center gap-1 transition-colors"
+                      onClick={() => handleFinishAndOpenDiscord('PIX AUTOMÁTICO')}
+                      className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg shadow transition-all flex items-center justify-center gap-1.5"
                     >
-                      {copiedKeyOnly ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{copiedKeyOnly ? 'Copiada!' : 'Copiar'}</span>
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Confirmar PIX e Abrir Ticket</span>
                     </button>
-                  </div>
-                </div>
 
-                <div>
-                  <label className="block text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
-                    📋 Código Copia & Cola:
-                  </label>
-                  <div className="flex gap-1.5">
-                    <input 
-                      type="text" 
-                      readOnly 
-                      value={pixCopyPasteCode} 
-                      className="flex-1 px-2.5 py-2 bg-[#16141e] border border-emerald-500/50 rounded-lg text-emerald-400 font-mono text-[11px] focus:outline-none truncate"
-                    />
                     <button 
                       onClick={handleCopyPix}
-                      className="px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-black font-bold text-xs rounded-lg flex items-center gap-1 transition-colors"
+                      className="w-full py-1.5 px-3 bg-[#161828] hover:bg-[#1e2035] border border-white/12 text-slate-300 font-semibold text-[11px] rounded-lg transition-all flex items-center justify-center gap-1"
                     >
-                      {copiedPix ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{copiedPix ? 'Copiado!' : 'Copiar'}</span>
+                      <Copy className="w-3 h-3 text-[#ff003c]" />
+                      <span>{copiedPix ? 'Código PIX Completo Copiado!' : 'Copiar Código PIX Completo'}</span>
                     </button>
                   </div>
                 </div>
-              </div>
-
-              {/* Confirm action */}
-              <button 
-                onClick={() => handleFinishAndOpenDiscord('PIX AUTOMÁTICO')}
-                className="w-full py-3 px-4 bg-emerald-500 hover:bg-emerald-600 text-black font-extrabold text-xs rounded-xl shadow-lg shadow-emerald-500/25 transition-all flex items-center justify-center gap-2"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-                <span>Confirmar e Notificar no Discord!</span>
-              </button>
+              )}
             </div>
-          )}
+          </div>
         </div>
+
       </div>
     </section>
   );
