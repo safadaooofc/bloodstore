@@ -10,7 +10,12 @@ export const ClientOrdersPage = ({ onBackToStore }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [uploadingProof, setUploadingProof] = useState(false);
   const [uploadingChatImg, setUploadingChatImg] = useState(false);
-  const chatBottomRef = useRef(null);
+  const chatContainerRef = useRef(null);
+  const scrollToBottom = () => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  };
 
   const clientName = currentUser?.username || localStorage.getItem('bloodstore_client_name') || '';
   const savedOrderIds = (() => {
@@ -41,6 +46,7 @@ export const ClientOrdersPage = ({ onBackToStore }) => {
   });
 
   const selectedOrder = userOrders.find(o => o.id === selectedOrderId) || userOrders[0];
+  const myOrders = userOrders;
 
   useEffect(() => {
     if (userOrders.length > 0 && !selectedOrderId) {
@@ -49,9 +55,7 @@ export const ClientOrdersPage = ({ onBackToStore }) => {
   }, [userOrders, selectedOrderId]);
 
   useEffect(() => {
-    if (chatBottomRef.current) {
-      chatBottomRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
+    scrollToBottom();
   }, [selectedOrder?.messages]);
 
   const handleProofUpload = async (e) => {
@@ -333,7 +337,7 @@ export const ClientOrdersPage = ({ onBackToStore }) => {
                   Abaixo estão os dados/conteúdo da sua entrega liberados diretamente pelo nosso Staff:
                 </p>
                 <div style={{ background: '#0d1a12', border: '1px solid #22c55e', borderRadius: '6px', padding: '14px', fontFamily: 'monospace', fontSize: '0.95rem', color: '#fff', whiteSpace: 'pre-wrap', userSelect: 'all', position: 'relative' }}>
-                  {selectedOrder.deliveryContent}
+                  {formatChatMessage(selectedOrder.deliveryContent)}
                   <button 
                     onClick={() => {
                       navigator.clipboard.writeText(selectedOrder.deliveryContent);
@@ -376,7 +380,7 @@ export const ClientOrdersPage = ({ onBackToStore }) => {
             )}
 
             {/* ÁREA DE CHAT EM TEMPO REAL ESTILO GGMAX */}
-            <div style={{ flex: 1, padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px', background: '#12121a' }}>
+            <div ref={chatContainerRef} style={{ flex: 1, padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px', background: '#12121a' }}>
               {selectedOrder.messages && selectedOrder.messages.map((msg) => {
                 const isSystem = msg.type === 'system';
                 const isStaff = msg.type === 'staff';
@@ -427,7 +431,12 @@ export const ClientOrdersPage = ({ onBackToStore }) => {
                       {msg.attachment && (
                         <div style={{ marginTop: '10px' }}>
                           <a href={msg.attachment} target="_blank" rel="noopener noreferrer">
-                            <img src={msg.attachment} alt="Anexo" style={{ maxWidth: '100%', maxHeight: '220px', borderRadius: '6px', border: '1px solid #3a3a4e', objectFit: 'cover' }} />
+                            <img 
+                              src={msg.attachment} 
+                              alt="Anexo" 
+                              onLoad={scrollToBottom}
+                              style={{ maxWidth: '100%', maxHeight: '220px', borderRadius: '6px', border: '1px solid #3a3a4e', objectFit: 'cover', display: 'block' }} 
+                            />
                           </a>
                         </div>
                       )}
@@ -435,7 +444,6 @@ export const ClientOrdersPage = ({ onBackToStore }) => {
                   </div>
                 );
               })}
-              <div ref={chatBottomRef} />
             </div>
 
             {/* INPUT DE MENSAGEM DO CHAT */}

@@ -21,7 +21,9 @@ export const AdminDashboard = ({ onExitAdmin }) => {
     updateProduct, 
     deleteProduct, 
     updateTerms,
-    resetToDefaults 
+    resetToDefaults,
+    notifyStaffStatus,
+    testDiscordWebhook
   } = useStore();
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -30,14 +32,12 @@ export const AdminDashboard = ({ onExitAdmin }) => {
   const [passwordInput, setPasswordInput] = useState('');
   const [activeTab, setActiveTab] = useState('orders'); // 'orders' | 'products' | 'config' | 'terms' | 'staff'
 
-  const adminChatEndRef = useRef(null);
-
-  useEffect(() => {
-    if (adminChatEndRef.current) {
-      adminChatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+  const adminChatContainerRef = useRef(null);
+  const scrollToAdminBottom = () => {
+    if (adminChatContainerRef.current) {
+      adminChatContainerRef.current.scrollTop = adminChatContainerRef.current.scrollHeight;
     }
-  }, [orders]);
-
+  };
   // Estados da aba de Gestão de Pedidos / Chat ao Vivo
   const [selectedAdminOrderId, setSelectedAdminOrderId] = useState(null);
   const [adminChatInput, setAdminChatInput] = useState('');
@@ -45,6 +45,10 @@ export const AdminDashboard = ({ onExitAdmin }) => {
   const [deliveryInput, setDeliveryInput] = useState('');
   const [rejectReasonInput, setRejectReasonInput] = useState('');
   const [orderFilter, setOrderFilter] = useState('all');
+
+  useEffect(() => {
+    scrollToAdminBottom();
+  }, [orders, selectedAdminOrderId]);
 
   const handleAdminChatFileUpload = async (e, selOrd) => {
     const file = e.target.files[0];
@@ -116,10 +120,32 @@ export const AdminDashboard = ({ onExitAdmin }) => {
   const [cfgStoreName, setCfgStoreName] = useState(config.storeName);
   const [cfgSlogan, setCfgSlogan] = useState(config.slogan);
   const [cfgDiscordInvite, setCfgDiscordInvite] = useState(config.discordInvite);
-  const [cfgWebhookUrl, setCfgWebhookUrl] = useState(config.webhookUrl);
-  const [cfgPixKey, setCfgPixKey] = useState(config.pixKey);
+  const [cfgWebhookUrl, setCfgWebhookUrl] = useState(config.webhookUrl || '');
+  const [cfgWebhookApprovalUrl, setCfgWebhookApprovalUrl] = useState(config.webhookApprovalUrl || '');
+  const [cfgWebhookRejectedUrl, setCfgWebhookRejectedUrl] = useState(config.webhookRejectedUrl || '');
+  const [cfgWebhookLogsUrl, setCfgWebhookLogsUrl] = useState(config.webhookLogsUrl || '');
+  const [cfgWebhookMsgLogsUrl, setCfgWebhookMsgLogsUrl] = useState(config.webhookMsgLogsUrl || '');
+  const [cfgWebhookStaffJoinUrl, setCfgWebhookStaffJoinUrl] = useState(config.webhookStaffJoinUrl || '');
+  const [cfgPixKey, setCfgPixKey] = useState(config.pixKey || '');
   const [cfgLogoUrl, setCfgLogoUrl] = useState(config.logoUrl || '/fotos e videos/BloodstoreLogo1.png');
   const [cfgBannerVideoUrl, setCfgBannerVideoUrl] = useState(config.bannerVideoUrl || '/fotos e videos/BloodstoreLogo2.png');
+
+  useEffect(() => {
+    if (config) {
+      if (config.storeName) setCfgStoreName(config.storeName);
+      if (config.slogan) setCfgSlogan(config.slogan);
+      if (config.discordInvite) setCfgDiscordInvite(config.discordInvite);
+      if (config.webhookUrl) setCfgWebhookUrl(config.webhookUrl);
+      if (config.webhookApprovalUrl) setCfgWebhookApprovalUrl(config.webhookApprovalUrl);
+      if (config.webhookRejectedUrl) setCfgWebhookRejectedUrl(config.webhookRejectedUrl);
+      if (config.webhookLogsUrl) setCfgWebhookLogsUrl(config.webhookLogsUrl);
+      if (config.webhookMsgLogsUrl) setCfgWebhookMsgLogsUrl(config.webhookMsgLogsUrl);
+      if (config.webhookStaffJoinUrl) setCfgWebhookStaffJoinUrl(config.webhookStaffJoinUrl);
+      if (config.pixKey) setCfgPixKey(config.pixKey);
+      if (config.logoUrl) setCfgLogoUrl(config.logoUrl);
+      if (config.bannerVideoUrl) setCfgBannerVideoUrl(config.bannerVideoUrl);
+    }
+  }, [config]);
 
   const handleFileUpload = (e, setter) => {
     const file = e.target.files[0];
@@ -143,6 +169,7 @@ export const AdminDashboard = ({ onExitAdmin }) => {
     if (foundStaff) {
       setCurrentStaff(foundStaff);
       setIsAuthenticated(true);
+      notifyStaffStatus(foundStaff, 'login');
     } else if ((cleanUser === 'xsag' && cleanPass === 'penismurcho') || ((cleanUser === 'admin' || cleanUser === 'staff') && cleanPass === 'admin123')) {
       // 2. Fallback fixo de dono (xsag / penismurcho ou admin123)
       const fallbackStaff = {
@@ -156,6 +183,7 @@ export const AdminDashboard = ({ onExitAdmin }) => {
       };
       setCurrentStaff(fallbackStaff);
       setIsAuthenticated(true);
+      notifyStaffStatus(fallbackStaff, 'login');
     } else {
       alert('⚠️ Credenciais inválidas. Verifique usuário e senha.');
     }
@@ -166,6 +194,7 @@ export const AdminDashboard = ({ onExitAdmin }) => {
     if (!newProdName.trim() || !newProdPrice.trim()) return;
 
     const benefitsArray = newProdBenefits.split('\n').map(s => s.trim()).filter(Boolean);
+    const staffName = currentStaff?.name || currentStaff?.username || "Administrador";
     addProduct({
       name: newProdName.trim(),
       slug: newProdName.trim().toLowerCase().replace(/\s+/g, '-'),
@@ -175,7 +204,7 @@ export const AdminDashboard = ({ onExitAdmin }) => {
       benefits: benefitsArray,
       pixKey: newProdPixKey.trim() || undefined,
       qrCodeUrl: newProdQrCodeUrl.trim() || undefined
-    });
+    }, staffName);
 
     setNewProdName('');
     setNewProdPrice('');
@@ -196,6 +225,7 @@ export const AdminDashboard = ({ onExitAdmin }) => {
 
   const handleSaveEditProduct = (id) => {
     const benefitsArray = editBenefits.split('\n').map(s => s.trim()).filter(Boolean);
+    const staffName = currentStaff?.name || currentStaff?.username || "Administrador";
     updateProduct(id, {
       name: editName.trim(),
       priceText: editPrice.trim().startsWith('R$') ? editPrice.trim() : `R$ ${editPrice.trim()}`,
@@ -203,28 +233,35 @@ export const AdminDashboard = ({ onExitAdmin }) => {
       benefits: benefitsArray,
       pixKey: editPixKey.trim() || undefined,
       qrCodeUrl: editQrCodeUrl.trim() || undefined
-    });
+    }, staffName);
     setEditingId(null);
     alert('✅ Produto atualizado!');
   };
 
   const handleSaveConfig = (e) => {
     e.preventDefault();
+    const staffName = currentStaff?.name || currentStaff?.username || "Administrador";
     updateConfig({
       storeName: cfgStoreName.trim(),
       slogan: cfgSlogan.trim(),
       discordInvite: cfgDiscordInvite.trim(),
       webhookUrl: cfgWebhookUrl.trim(),
+      webhookApprovalUrl: cfgWebhookApprovalUrl.trim(),
+      webhookRejectedUrl: cfgWebhookRejectedUrl.trim(),
+      webhookLogsUrl: cfgWebhookLogsUrl.trim(),
+      webhookMsgLogsUrl: cfgWebhookMsgLogsUrl.trim(),
+      webhookStaffJoinUrl: cfgWebhookStaffJoinUrl.trim(),
       pixKey: cfgPixKey.trim(),
       logoUrl: cfgLogoUrl.trim(),
       bannerVideoUrl: cfgBannerVideoUrl.trim()
-    });
-    alert('✅ Configurações e mídias globais salvas com sucesso no LocalStorage!');
+    }, staffName);
+    alert('✅ Configurações e todos os 6 links de Webhook salvos com sucesso!');
   };
 
   const handleUpdateTermItem = (id, newTitle, newContent) => {
+    const staffName = currentStaff?.name || currentStaff?.username || "Administrador";
     const updated = terms.map(t => t.id === id ? { ...t, title: newTitle, content: newContent } : t);
-    updateTerms(updated);
+    updateTerms(updated, staffName);
   };
 
   const handleAddStaffUser = (e) => {
@@ -236,12 +273,13 @@ export const AdminDashboard = ({ onExitAdmin }) => {
       return;
     }
 
+    const staffName = currentStaff?.name || currentStaff?.username || "Administrador";
     addStaffUser({
       username: newStaffUser.trim(),
       password: newStaffPass.trim(),
       role: newStaffRole,
       ...newStaffPerms
-    });
+    }, staffName);
 
     setNewStaffUser('');
     setNewStaffPass('');
@@ -348,7 +386,8 @@ export const AdminDashboard = ({ onExitAdmin }) => {
           <button 
             onClick={() => {
               if (window.confirm("Atenção: Deseja restaurar os dados originais da Blood Store no LocalStorage?")) {
-                resetToDefaults();
+                const staffName = currentStaff?.name || currentStaff?.username || "Administrador";
+                resetToDefaults(staffName);
                 alert("Dados restaurados!");
               }
             }} 
@@ -356,7 +395,28 @@ export const AdminDashboard = ({ onExitAdmin }) => {
           >
             <i className="fa-solid fa-rotate"></i> Restaurar Padrão
           </button>
-          <button onClick={onExitAdmin} className="btn-exit-admin">
+          <button 
+            onClick={() => {
+              if (currentStaff) {
+                notifyStaffStatus(currentStaff, 'logout', `O membro da equipe saiu do painel administrativo e encerrou o turno.`);
+              }
+              setIsAuthenticated(false);
+              setCurrentStaff(null);
+            }} 
+            className="btn-logout-staff"
+            style={{ background: '#221414', border: '1px solid #cc0000', color: '#ff6b6b', padding: '10px', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}
+          >
+            <i className="fa-solid fa-right-from-bracket"></i> Sair / Encerrar Turno (Log Off)
+          </button>
+          <button 
+            onClick={() => {
+              if (currentStaff) {
+                notifyStaffStatus(currentStaff, 'logout', `O membro da equipe saiu da área de administração e voltou para a vitrine da loja.`);
+              }
+              onExitAdmin();
+            }} 
+            className="btn-exit-admin"
+          >
             <i className="fa-solid fa-store"></i> Ver Loja (Vitrine)
           </button>
         </div>
@@ -372,12 +432,19 @@ export const AdminDashboard = ({ onExitAdmin }) => {
             {activeTab === 'terms' && <><i className="fa-solid fa-file-contract text-red"></i> Edição de Termos e Políticas</>}
             {activeTab === 'staff' && <><i className="fa-solid fa-user-shield text-red"></i> Gestão de Usuários da Equipe Staff & Sub-Admins</>}
           </h2>
-          <div className="admin-actions">
+          <div className="admin-actions" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
             <span style={{ fontSize: '0.85rem', color: '#22c55e', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <span style={{ width: '8px', height: '8px', background: '#22c55e', borderRadius: '50%', display: 'inline-block', boxShadow: '0 0 8px #22c55e' }}></span>
-              temp real
+              Online: @{currentStaff?.username || 'Staff'}
             </span>
-            <span style={{ fontSize: '0.85rem', color: '#a0a0b0' }}>Modo Staff</span>
+            <button
+              type="button"
+              onClick={() => notifyStaffStatus(currentStaff, 'login', `O staff **@${currentStaff?.username}** clicou no botão "Disparar Presença Online" no topo do painel e confirmou que está ativo no atendimento!`)}
+              style={{ background: '#0e2a18', border: '1px solid #22c55e', color: '#4ade80', padding: '6px 12px', borderRadius: '6px', fontSize: '0.78rem', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+              title="Disparar aviso de que você está ativo no Webhook STAFF JOIN / ON"
+            >
+              <i className="fa-solid fa-satellite-dish"></i> Disparar Presença Online
+            </button>
           </div>
         </header>
 
@@ -389,28 +456,34 @@ export const AdminDashboard = ({ onExitAdmin }) => {
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', background: '#181822', padding: '14px 18px', borderRadius: '8px', border: '1px solid #2a0c0c', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   <button 
-                    onClick={() => setOrderFilter('all')} 
+                    onClick={() => { setOrderFilter('all'); setSelectedAdminOrderId(null); }} 
                     style={{ background: orderFilter === 'all' ? '#cc0000' : '#202030', color: '#fff', border: '1px solid #3c3c4e', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.82rem' }}
                   >
                     Todos ({orders.length})
                   </button>
                   <button 
-                    onClick={() => setOrderFilter('aguardando_comprovante')} 
+                    onClick={() => { setOrderFilter('aguardando_comprovante'); setSelectedAdminOrderId(null); }} 
                     style={{ background: orderFilter === 'aguardando_comprovante' ? '#ffc107' : '#202030', color: orderFilter === 'aguardando_comprovante' ? '#000' : '#fff', border: '1px solid #3c3c4e', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.82rem' }}
                   >
                     Aguardando Comprovante ({orders.filter(o => o.status === 'aguardando_comprovante').length})
                   </button>
                   <button 
-                    onClick={() => setOrderFilter('em_analise')} 
+                    onClick={() => { setOrderFilter('em_analise'); setSelectedAdminOrderId(null); }} 
                     style={{ background: orderFilter === 'em_analise' ? '#38bdf8' : '#202030', color: orderFilter === 'em_analise' ? '#000' : '#fff', border: '1px solid #3c3c4e', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.82rem' }}
                   >
                     Em Análise 📎 ({orders.filter(o => o.status === 'em_analise').length})
                   </button>
                   <button 
-                    onClick={() => setOrderFilter('aprovado_entregue')} 
+                    onClick={() => { setOrderFilter('aprovado_entregue'); setSelectedAdminOrderId(null); }} 
                     style={{ background: orderFilter === 'aprovado_entregue' ? '#22c55e' : '#202030', color: '#fff', border: '1px solid #3c3c4e', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.82rem' }}
                   >
                     Entregues ✅ ({orders.filter(o => o.status === 'aprovado_entregue').length})
+                  </button>
+                  <button 
+                    onClick={() => { setOrderFilter('cancelado'); setSelectedAdminOrderId(null); }} 
+                    style={{ background: orderFilter === 'cancelado' ? '#ff6b6b' : '#202030', color: '#fff', border: '1px solid #3c3c4e', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.82rem' }}
+                  >
+                    Cancelados ❌ ({orders.filter(o => o.status === 'cancelado').length})
                   </button>
                 </div>
                 <small style={{ color: '#78788c' }}>Clique em um pedido para atender no chat ao vivo ou liberar entrega.</small>
@@ -424,68 +497,73 @@ export const AdminDashboard = ({ onExitAdmin }) => {
                 </div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: '20px' }}>
-                  
-                  {/* LISTA DE PEDIDOS FILTRADOS */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', maxHeight: '720px' }}>
-                    {orders
-                      .filter(o => orderFilter === 'all' || o.status === orderFilter)
-                      .map(ord => {
-                        const isSelected = (selectedAdminOrderId ? selectedAdminOrderId === ord.id : orders[0]?.id === ord.id);
-                        return (
-                          <div 
-                            key={ord.id}
-                            onClick={() => {
-                              setSelectedAdminOrderId(ord.id);
-                              setDeliveryInput(ord.deliveryContent || '');
-                              setRejectReasonInput(ord.rejectReason || '');
-                            }}
-                            style={{
-                              background: isSelected ? '#202030' : '#181822',
-                              border: isSelected ? '1px solid #22c55e' : '1px solid #2a0c0c',
-                              borderRadius: '8px',
-                              padding: '14px',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s',
-                              boxShadow: isSelected ? '0 0 16px rgba(34, 197, 94, 0.2)' : 'none'
-                            }}
-                          >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                              <strong style={{ color: '#fff', fontSize: '0.88rem' }}>{ord.orderNumber}</strong>
-                              <span style={{ fontSize: '0.75rem', color: '#78788c' }}>{new Date(ord.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
-                            </div>
-
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                              <img src={ord.buyer?.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'} alt="Buyer" style={{ width: '22px', height: '22px', borderRadius: '50%' }} />
-                              <span style={{ fontSize: '0.85rem', color: '#38bdf8', fontWeight: '600' }}>{ord.buyer?.username}</span>
-                            </div>
-
-                            <div style={{ fontSize: '0.92rem', fontWeight: '700', color: '#fff', marginBottom: '6px' }}>
-                              {ord.product?.name} ({ord.product?.priceText})
-                            </div>
-
-                            {ord.contactMethod && (
-                              <div style={{ fontSize: '0.74rem', color: '#a0a0b0', marginBottom: '8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                📬 {ord.contactMethod} ({ord.contactValue})
-                              </div>
-                            )}
-
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              {ord.status === 'aguardando_comprovante' && <span style={{ color: '#ffc107', fontSize: '0.76rem', fontWeight: '700' }}>⏳ Aguardando Comprovante</span>}
-                              {ord.status === 'em_analise' && <span style={{ color: '#38bdf8', fontSize: '0.76rem', fontWeight: '700' }}>📎 Comprovante Anexado!</span>}
-                              {ord.status === 'aprovado_entregue' && <span style={{ color: '#22c55e', fontSize: '0.76rem', fontWeight: '700' }}>✅ Entregue ao Cliente</span>}
-                              {ord.status === 'cancelado' && <span style={{ color: '#ff6b6b', fontSize: '0.76rem', fontWeight: '700' }}>❌ Cancelado/Reprovado</span>}
-                              
-                              <span style={{ fontSize: '0.75rem', color: '#a0a0b0' }}>{ord.messages?.length || 0} msgs</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                  </div>
-
-                  {/* SALA DO ATENDIMENTO / ENTREGA */}
                   {(() => {
-                    const selOrd = orders.find(o => o.id === (selectedAdminOrderId || orders[0]?.id));
-                    if (!selOrd) return null;
+                    const filteredOrders = orders.filter(o => orderFilter === 'all' || o.status === orderFilter);
+                    const activeSelId = (selectedAdminOrderId && filteredOrders.some(o => o.id === selectedAdminOrderId))
+                      ? selectedAdminOrderId
+                      : (filteredOrders[0]?.id || orders[0]?.id || null);
+
+                    return (
+                      <>
+                        {/* LISTA DE PEDIDOS FILTRADOS */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', maxHeight: '720px' }}>
+                          {filteredOrders.map(ord => {
+                            const isSelected = (ord.id === activeSelId);
+                            return (
+                              <div 
+                                key={ord.id}
+                                onClick={() => {
+                                  setSelectedAdminOrderId(ord.id);
+                                  setDeliveryInput(ord.deliveryContent || '');
+                                  setRejectReasonInput(ord.rejectReason || '');
+                                }}
+                                style={{
+                                  background: isSelected ? '#202030' : '#181822',
+                                  border: isSelected ? '1px solid #22c55e' : '1px solid #2a0c0c',
+                                  borderRadius: '8px',
+                                  padding: '14px',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.2s',
+                                  boxShadow: isSelected ? '0 0 16px rgba(34, 197, 94, 0.2)' : 'none'
+                                }}
+                              >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                  <strong style={{ color: '#fff', fontSize: '0.88rem' }}>{ord.orderNumber}</strong>
+                                  <span style={{ fontSize: '0.75rem', color: '#78788c' }}>{new Date(ord.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                                  <img src={ord.buyer?.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'} alt="Buyer" style={{ width: '22px', height: '22px', borderRadius: '50%' }} />
+                                  <span style={{ fontSize: '0.85rem', color: '#38bdf8', fontWeight: '600' }}>{ord.buyer?.username}</span>
+                                </div>
+
+                                <div style={{ fontSize: '0.92rem', fontWeight: '700', color: '#fff', marginBottom: '6px' }}>
+                                  {ord.product?.name} ({ord.product?.priceText})
+                                </div>
+
+                                {ord.contactMethod && (
+                                  <div style={{ fontSize: '0.74rem', color: '#a0a0b0', marginBottom: '8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    📬 {ord.contactMethod} ({ord.contactValue})
+                                  </div>
+                                )}
+
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                  {ord.status === 'aguardando_comprovante' && <span style={{ color: '#ffc107', fontSize: '0.76rem', fontWeight: '700' }}>⏳ Aguardando Comprovante</span>}
+                                  {ord.status === 'em_analise' && <span style={{ color: '#38bdf8', fontSize: '0.76rem', fontWeight: '700' }}>📎 Comprovante Anexado!</span>}
+                                  {ord.status === 'aprovado_entregue' && <span style={{ color: '#22c55e', fontSize: '0.76rem', fontWeight: '700' }}>✅ Entregue ao Cliente</span>}
+                                  {ord.status === 'cancelado' && <span style={{ color: '#ff6b6b', fontSize: '0.76rem', fontWeight: '700' }}>❌ Cancelado/Reprovado</span>}
+                                  
+                                  <span style={{ fontSize: '0.75rem', color: '#a0a0b0' }}>{ord.messages?.length || 0} msgs</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* SALA DO ATENDIMENTO / ENTREGA */}
+                        {(() => {
+                          const selOrd = orders.find(o => o.id === activeSelId);
+                          if (!selOrd) return null;
 
                     return (
                       <div style={{ background: '#181822', border: '1px solid #2a0c0c', borderRadius: '10px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -538,8 +616,9 @@ export const AdminDashboard = ({ onExitAdmin }) => {
                                     alert('Digite o conteúdo da entrega no campo acima antes de aprovar!');
                                     return;
                                   }
-                                  approveAndDeliverOrder(selOrd.id, deliveryInput.trim());
-                                  alert('✅ Produto entregue! O cliente recebeu os dados no chat dele.');
+                                  const staffName = currentStaff?.name || currentStaff?.username || "Staff Blood Store";
+                                  approveAndDeliverOrder(selOrd.id, deliveryInput.trim(), staffName);
+                                  alert('✅ Produto entregue e notificado no Webhook de Aprovação da Staff!');
                                 }}
                                 className="btn-complete-order"
                                 style={{ background: '#22c55e', border: 'none', padding: '10px', fontSize: '0.88rem', fontWeight: '700', color: '#fff' }}
@@ -566,8 +645,9 @@ export const AdminDashboard = ({ onExitAdmin }) => {
                                     alert('Digite o motivo da reprovação!');
                                     return;
                                   }
-                                  rejectOrder(selOrd.id, rejectReasonInput.trim());
-                                  alert('❌ Pedido reprovado e motivo notificado no chat.');
+                                  const staffName = currentStaff?.name || currentStaff?.username || "Staff Blood Store";
+                                  rejectOrder(selOrd.id, rejectReasonInput.trim(), staffName);
+                                  alert('❌ Pedido reprovado e notificado no Webhook da Staff.');
                                 }}
                                 className="btn-complete-order"
                                 style={{ background: '#cc0000', border: 'none', padding: '10px', fontSize: '0.88rem', fontWeight: '700', color: '#fff' }}
@@ -579,7 +659,7 @@ export const AdminDashboard = ({ onExitAdmin }) => {
                         )}
 
                         {/* ÁREA MENSAGENS E CHAT DO STAFF COM O CLIENTE */}
-                        <div style={{ flex: 1, padding: '18px 20px', overflowY: 'auto', maxHeight: '380px', display: 'flex', flexDirection: 'column', gap: '10px', background: '#12121a' }}>
+                        <div ref={adminChatContainerRef} style={{ flex: 1, padding: '18px 20px', overflowY: 'auto', maxHeight: '380px', display: 'flex', flexDirection: 'column', gap: '10px', background: '#12121a' }}>
                           {selOrd.messages && selOrd.messages.map((msg) => {
                             const isSystem = msg.type === 'system';
                             const isStaff = msg.type === 'staff';
@@ -604,7 +684,12 @@ export const AdminDashboard = ({ onExitAdmin }) => {
                                   {msg.attachment && (
                                     <div style={{ marginTop: '8px' }}>
                                       <a href={msg.attachment} target="_blank" rel="noopener noreferrer">
-                                        <img src={msg.attachment} alt="Anexo" style={{ maxWidth: '100%', maxHeight: '180px', borderRadius: '6px', border: '1px solid #3a3a4e' }} />
+                                        <img 
+                                          src={msg.attachment} 
+                                          alt="Anexo" 
+                                          onLoad={scrollToAdminBottom}
+                                          style={{ maxWidth: '100%', maxHeight: '180px', borderRadius: '6px', border: '1px solid #3a3a4e', display: 'block' }} 
+                                        />
                                       </a>
                                     </div>
                                   )}
@@ -612,7 +697,6 @@ export const AdminDashboard = ({ onExitAdmin }) => {
                               </div>
                             );
                           })}
-                          <div ref={adminChatEndRef} />
                         </div>
 
                         {/* INPUT PARA STAFF RESPONDER NO CHAT */}
@@ -641,14 +725,16 @@ export const AdminDashboard = ({ onExitAdmin }) => {
                             <i className="fa-solid fa-paper-plane"></i> Enviar
                           </button>
                         </form>
-
                       </div>
                     );
                   })()}
-                </div>
-              )}
-            </div>
-          )}
+                </>
+              );
+            })()}
+          </div>
+        )}
+      </div>
+    )}
 
           {/* ABA 1: PRODUTOS */}
           {activeTab === 'products' && (
@@ -880,7 +966,8 @@ export const AdminDashboard = ({ onExitAdmin }) => {
                                   <button 
                                     onClick={() => {
                                       if (window.confirm(`Excluir o produto "${prod.name}" da loja?`)) {
-                                        deleteProduct(prod.id);
+                                        const staffName = currentStaff?.name || currentStaff?.username || "Administrador";
+                                        deleteProduct(prod.id, staffName);
                                       }
                                     }} 
                                     className="btn-action-delete" 
@@ -984,7 +1071,7 @@ export const AdminDashboard = ({ onExitAdmin }) => {
 
                 <div className="form-group" style={{ gridColumn: '1 / -1' }}>
                   <label className="form-label">
-                    <i className="fa-brands fa-discord text-red"></i> URL do Webhook do Discord (Para notificações de Venda)
+                    <i className="fa-brands fa-discord text-red"></i> 1. Webhook de Vendas & Avisos de Compra (Pedidos/PIX dos Clientes)
                   </label>
                   <input 
                     type="url" 
@@ -993,9 +1080,155 @@ export const AdminDashboard = ({ onExitAdmin }) => {
                     value={cfgWebhookUrl}
                     onChange={(e) => setCfgWebhookUrl(e.target.value)}
                   />
-                  <small style={{ color: '#78788c', display: 'block', marginTop: '4px' }}>
-                    Sempre que um cliente gerar o PIX no checkout, uma Embed Vermelha será enviada automaticamente para esta URL!
-                  </small>
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <button 
+                      type="button"
+                      onClick={() => testDiscordWebhook(cfgWebhookUrl, 'sales')}
+                      style={{ background: '#5865F2', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px', transition: 'background 0.2s' }}
+                      onMouseOver={(e) => e.currentTarget.style.background = '#4752C4'}
+                      onMouseOut={(e) => e.currentTarget.style.background = '#5865F2'}
+                    >
+                      <i className="fa-brands fa-discord"></i> Testar Webhook de Vendas
+                    </button>
+                    <small style={{ color: '#78788c', flex: 1, minWidth: '240px' }}>
+                      Enviado quando um cliente inicia uma compra e gera o PIX no checkout.
+                    </small>
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                  <label className="form-label" style={{ color: '#facc15' }}>
+                    <i className="fa-brands fa-discord"></i> 2. Webhook de MNSG LOGS (Chat em Tempo Real dos Pedidos)
+                  </label>
+                  <input 
+                    type="url" 
+                    className="form-input" 
+                    placeholder="https://discord.com/api/webhooks/..." 
+                    value={cfgWebhookMsgLogsUrl}
+                    onChange={(e) => setCfgWebhookMsgLogsUrl(e.target.value)}
+                  />
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <button 
+                      type="button"
+                      onClick={() => testDiscordWebhook(cfgWebhookMsgLogsUrl, 'msgLogs')}
+                      style={{ background: '#ca8a04', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px', transition: 'background 0.2s' }}
+                      onMouseOver={(e) => e.currentTarget.style.background = '#a16207'}
+                      onMouseOut={(e) => e.currentTarget.style.background = '#ca8a04'}
+                    >
+                      <i className="fa-solid fa-comments"></i> Testar Webhook de MNSG LOGS
+                    </button>
+                    <small style={{ color: '#78788c', flex: 1, minWidth: '240px' }}>
+                      Enviado com cópia de todas as mensagens e anexos trocados no chat ao vivo entre cliente e equipe.
+                    </small>
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                  <label className="form-label" style={{ color: '#4ade80' }}>
+                    <i className="fa-brands fa-discord"></i> 3. Webhook de APROVADOS (Entrega & Confirmação pela Staff)
+                  </label>
+                  <input 
+                    type="url" 
+                    className="form-input" 
+                    placeholder="https://discord.com/api/webhooks/..." 
+                    value={cfgWebhookApprovalUrl}
+                    onChange={(e) => setCfgWebhookApprovalUrl(e.target.value)}
+                  />
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <button 
+                      type="button"
+                      onClick={() => testDiscordWebhook(cfgWebhookApprovalUrl, 'approval')}
+                      style={{ background: '#16a34a', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px', transition: 'background 0.2s' }}
+                      onMouseOver={(e) => e.currentTarget.style.background = '#15803d'}
+                      onMouseOut={(e) => e.currentTarget.style.background = '#16a34a'}
+                    >
+                      <i className="fa-solid fa-check"></i> Testar Webhook de Aprovação
+                    </button>
+                    <small style={{ color: '#78788c', flex: 1, minWidth: '240px' }}>
+                      Enviado com o nome do Staff quando um pedido é confirmado e o produto é entregue.
+                    </small>
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                  <label className="form-label" style={{ color: '#f87171' }}>
+                    <i className="fa-brands fa-discord"></i> 4. Webhook de RECUSADO LOGS (Reprovação de Comprovantes / Pedidos)
+                  </label>
+                  <input 
+                    type="url" 
+                    className="form-input" 
+                    placeholder="https://discord.com/api/webhooks/..." 
+                    value={cfgWebhookRejectedUrl}
+                    onChange={(e) => setCfgWebhookRejectedUrl(e.target.value)}
+                  />
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <button 
+                      type="button"
+                      onClick={() => testDiscordWebhook(cfgWebhookRejectedUrl, 'rejected')}
+                      style={{ background: '#dc2626', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px', transition: 'background 0.2s' }}
+                      onMouseOver={(e) => e.currentTarget.style.background = '#b91c1c'}
+                      onMouseOut={(e) => e.currentTarget.style.background = '#dc2626'}
+                    >
+                      <i className="fa-solid fa-xmark"></i> Testar Webhook de Recusados
+                    </button>
+                    <small style={{ color: '#78788c', flex: 1, minWidth: '240px' }}>
+                      Enviado quando algum Staff reprova um pedido ou comprovante PIX com o motivo digitado.
+                    </small>
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                  <label className="form-label" style={{ color: '#2dd4bf' }}>
+                    <i className="fa-brands fa-discord"></i> 5. Webhook de STAFF JOIN LOGS (Monitoramento de Staff Online / Turno)
+                  </label>
+                  <input 
+                    type="url" 
+                    className="form-input" 
+                    placeholder="https://discord.com/api/webhooks/..." 
+                    value={cfgWebhookStaffJoinUrl}
+                    onChange={(e) => setCfgWebhookStaffJoinUrl(e.target.value)}
+                  />
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <button 
+                      type="button"
+                      onClick={() => testDiscordWebhook(cfgWebhookStaffJoinUrl, 'staffJoin')}
+                      style={{ background: '#0d9488', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px', transition: 'background 0.2s' }}
+                      onMouseOver={(e) => e.currentTarget.style.background = '#0f766e'}
+                      onMouseOut={(e) => e.currentTarget.style.background = '#0d9488'}
+                    >
+                      <i className="fa-solid fa-user-clock"></i> Testar Webhook Staff Join / Online
+                    </button>
+                    <small style={{ color: '#78788c', flex: 1, minWidth: '240px' }}>
+                      Monitora em tempo real quando os membros da Staff entram (login), marcam presença ou encerram o turno (logout).
+                    </small>
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+                  <label className="form-label" style={{ color: '#60a5fa' }}>
+                    <i className="fa-brands fa-discord"></i> 6. Webhook de LOGS de Alterações no Site (Auditoria Administrativa)
+                  </label>
+                  <input 
+                    type="url" 
+                    className="form-input" 
+                    placeholder="https://discord.com/api/webhooks/..." 
+                    value={cfgWebhookLogsUrl}
+                    onChange={(e) => setCfgWebhookLogsUrl(e.target.value)}
+                  />
+                  <div style={{ display: 'flex', gap: '10px', marginTop: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <button 
+                      type="button"
+                      onClick={() => testDiscordWebhook(cfgWebhookLogsUrl, 'logs')}
+                      style={{ background: '#2563eb', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '6px', transition: 'background 0.2s' }}
+                      onMouseOver={(e) => e.currentTarget.style.background = '#1d4ed8'}
+                      onMouseOut={(e) => e.currentTarget.style.background = '#2563eb'}
+                    >
+                      <i className="fa-solid fa-shield-halved"></i> Testar Webhook de Logs do Site
+                    </button>
+                    <small style={{ color: '#78788c', flex: 1, minWidth: '240px' }}>
+                      Enviado quando algum Staff modifica produtos, configurações, membros da equipe ou termos no painel.
+                    </small>
+                  </div>
                 </div>
 
                 <div className="form-group" style={{ gridColumn: '1 / -1' }}>
@@ -1228,7 +1461,8 @@ export const AdminDashboard = ({ onExitAdmin }) => {
                             <button 
                               onClick={() => {
                                 if (window.confirm(`Remover o acesso de "${user.username}" da equipe Staff?`)) {
-                                  deleteStaffUser(user.id);
+                                  const staffName = currentStaff?.name || currentStaff?.username || "Administrador";
+                                  deleteStaffUser(user.id, staffName);
                                 }
                               }} 
                               className="btn-action-delete"
