@@ -97,39 +97,6 @@ export const CheckoutPage = ({ onBackToStore }) => {
     const generatedId = newOrder.orderNumber;
     setOrderId(generatedId);
 
-    if (config.webhookUrl) {
-      const payload = {
-        username: `${config.storeName} • Vendas`,
-        avatar_url: "https://i.imgur.com/8N40WzN.png",
-        embeds: [{
-          title: `🩸 NOVO PEDIDO CONFIRMADO • ${generatedId}`,
-          description: `Um cliente iniciou o processo de compra do produto **${product.name}**.`,
-          color: 13369344,
-          fields: [
-            { name: "📬 Meio de Contato", value: `**${contactMethod}**`, inline: false },
-            { name: "👤 Identificação do Cliente", value: `\`${contactValue.trim()}\``, inline: true },
-            { name: "📦 Produto", value: `**${product.name}**`, inline: true },
-            { name: "💰 Valor", value: `**${product.priceText}**`, inline: true },
-            { name: "📝 Observação", value: customerNote ? `\`${customerNote}\`` : "Nenhuma", inline: false },
-            { name: "📅 Data e Hora", value: new Date().toLocaleString("pt-BR"), inline: false },
-            { name: "🔔 Próximo Passo", value: "Aguardando o cliente anexar o comprovante PIX na sala de chat (`/#/pedidos`).", inline: false }
-          ],
-          footer: { text: `${config.storeName} • Sistema de Entrega Estilo GGMAX` },
-          timestamp: new Date().toISOString()
-        }]
-      };
-
-      try {
-        await fetch(config.webhookUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-      } catch (err) {
-        console.log("Aviso: Erro ao notificar Webhook:", err);
-      }
-    }
-
     setLoading(false);
     setOrderSuccess(true);
   };
@@ -289,8 +256,6 @@ export const CheckoutPage = ({ onBackToStore }) => {
                       onChange={(e) => setContactMethod(e.target.value)}
                     >
                       <option value="💬 Chat ao Vivo no Site (Aqui no Pedido)">💬 Chat ao Vivo no Site (Direto em Meus Pedidos)</option>
-                      <option value="🎮 Nick / Tag no Discord">🎮 Nick / Tag no Discord</option>
-                      <option value="📧 E-mail para Envio">📧 E-mail para Envio</option>
                       <option value="🎟️ Ticket em nosso Servidor Discord">🎟️ Ticket em nosso Servidor Discord</option>
                     </select>
                   </div>

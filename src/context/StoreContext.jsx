@@ -490,6 +490,32 @@ export const StoreProvider = ({ children }) => {
     }));
   };
 
+  // --- Central de Notificações Webhook do Discord ---
+  const notifyDiscordWebhook = async (embedData) => {
+    const url = storeState?.config?.webhookUrl || '';
+    if (!url || typeof url !== 'string' || !url.includes('discord')) return;
+
+    const payload = {
+      username: `${storeState?.config?.storeName || 'Blood Store'} • Sistema Ao Vivo`,
+      avatar_url: "https://i.imgur.com/8N40WzN.png",
+      embeds: [{
+        ...embedData,
+        footer: { text: `${storeState?.config?.storeName || 'Blood Store'} • Sistema Estilo GGMAX` },
+        timestamp: new Date().toISOString()
+      }]
+    };
+
+    try {
+      await fetch(url.trim(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    } catch (err) {
+      console.error("❌ Erro ao enviar notificação para o Webhook do Discord:", err);
+    }
+  };
+
   // --- Pedidos & Chat ao Vivo Estilo GGMAX com Blindagem Anti-Hacking ---
   const createOrder = ({ product, discordUser, pixCode, qrCodeUrl, contactMethod, contactValue }) => {
     // Validação de Rate Limiting (Anti-Spam)
@@ -545,6 +571,20 @@ export const StoreProvider = ({ children }) => {
       orders: [newOrder, ...(prev.orders || [])]
     }));
 
+    // Notificar Webhook do Discord de Novo Pedido
+    notifyDiscordWebhook({
+      title: `🩸 NOVO PEDIDO CONFIRMADO • ${orderNumber}`,
+      description: `Um cliente iniciou o processo de compra do produto **${product.name}**.`,
+      color: 13369344,
+      fields: [
+        { name: "📬 Meio de Contato", value: `**${cleanContactMethod}**`, inline: false },
+        { name: "👤 Identificação do Cliente", value: `\`${cleanContactValue}\``, inline: true },
+        { name: "📦 Produto", value: `**${product.name}**`, inline: true },
+        { name: "💰 Valor", value: `**${product.priceText}**`, inline: true },
+        { name: "🔔 Próximo Passo", value: "Aguardando o cliente anexar o comprovante PIX na sala de chat (`/#/pedidos`).", inline: false }
+      ]
+    });
+
     return newOrder;
   };
 
@@ -572,6 +612,21 @@ export const StoreProvider = ({ children }) => {
       });
       return { ...prev, orders: updatedOrders };
     });
+
+    const targetOrd = (storeState.orders || []).find(o => o.id === orderId);
+    if (targetOrd) {
+      notifyDiscordWebhook({
+        title: `📎 [NOVO COMPROVANTE PIX] • Pedido ${targetOrd.orderNumber}`,
+        description: `O cliente **${targetOrd.buyer?.username || 'Cliente'}** anexou o comprovante de pagamento para **${targetOrd.product?.name}**!`,
+        color: 16766720,
+        fields: [
+          { name: "📦 Produto", value: `**${targetOrd.product?.name}** (${targetOrd.product?.priceText})`, inline: true },
+          { name: "📬 Contato do Cliente", value: `\`${targetOrd.contactMethod}: ${targetOrd.contactValue}\``, inline: true },
+          { name: "🔔 Status", value: "⚠️ **O pedido mudou para Em Análise. Acesse o Painel Staff (`/#/staff`) para conferir o print e aprovar.**", inline: false }
+        ],
+        image: { url: proofImageUrl }
+      });
+    }
   };
 
   const addOrderMessage = (orderId, senderName, senderType, text, attachmentUrl = null) => {
@@ -610,6 +665,22 @@ export const StoreProvider = ({ children }) => {
       });
       return { ...prev, orders: updatedOrders };
     });
+
+    const targetOrd = (storeState.orders || []).find(o => o.id === orderId);
+    if (targetOrd) {
+      const isStaff = senderType === 'staff';
+      notifyDiscordWebhook({
+        title: isStaff ? `💬 [STAFF RESPONDENDO NO CHAT] • Pedido ${targetOrd.orderNumber}` : `💬 [MENSAGEM DO CLIENTE] • Pedido ${targetOrd.orderNumber}`,
+        description: `**De:** ${cleanSender} (${isStaff ? 'Equipe Staff' : 'Cliente'})\n**Mensagem:**\n\`\`\`\n${cleanText || 'Anexo enviado'}\n\`\`\``,
+        color: isStaff ? 16731136 : 3717080,
+        fields: [
+          { name: "📦 Produto", value: `**${targetOrd.product?.name || 'Produto'}**`, inline: true },
+          { name: "👤 Cliente", value: `\`${targetOrd.buyer?.username || 'Usuário'}\``, inline: true },
+          ...(attachmentUrl ? [{ name: "📎 Anexo", value: `[Clique para visualizar o anexo](${attachmentUrl})`, inline: false }] : [])
+        ],
+        ...(attachmentUrl ? { image: { url: attachmentUrl } } : {})
+      });
+    }
   };
 
   const approveAndDeliverOrder = (orderId, deliveryContent, staffName = "Staff Blood Store") => {
@@ -638,6 +709,19 @@ export const StoreProvider = ({ children }) => {
       });
       return { ...prev, orders: updatedOrders };
     });
+
+    const targetOrd = (storeState.orders || []).find(o => o.id === orderId);
+    if (targetOrd) {
+      notifyDiscordWebhook({
+        title: `✅ [PAGAMENTO APROVADO & PRODUTO ENTREGUE] • Pedido ${targetOrd.orderNumber}`,
+        description: `O Staff **${cleanStaff}** confirmou o pagamento de **${targetOrd.product?.name}** e liberou o produto na caixa secreta do cliente no chat!`,
+        color: 2278690,
+        fields: [
+          { name: "📦 Produto", value: `**${targetOrd.product?.name}** (${targetOrd.product?.priceText})`, inline: true },
+          { name: "👤 Cliente", value: `\`${targetOrd.buyer?.username}\``, inline: true }
+        ]
+      });
+    }
   };
 
   const rejectOrder = (orderId, reason, staffName = "Staff Blood Store") => {
@@ -666,6 +750,20 @@ export const StoreProvider = ({ children }) => {
       });
       return { ...prev, orders: updatedOrders };
     });
+
+    const targetOrd = (storeState.orders || []).find(o => o.id === orderId);
+    if (targetOrd) {
+      notifyDiscordWebhook({
+        title: `❌ [PEDIDO REPROVADO / CANCELADO] • Pedido ${targetOrd.orderNumber}`,
+        description: `O Staff **${cleanStaff}** reprovou o comprovante / pedido.`,
+        color: 13369344,
+        fields: [
+          { name: "📦 Produto", value: `**${targetOrd.product?.name}**`, inline: true },
+          { name: "👤 Cliente", value: `\`${targetOrd.buyer?.username}\``, inline: true },
+          { name: "⚠️ Motivo", value: `\`${cleanReason}\``, inline: false }
+        ]
+      });
+    }
   };
 
   return (

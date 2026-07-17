@@ -54,38 +54,6 @@ export const SplitCheckoutModal = ({ product, onClose }) => {
     const generatedId = newOrder.orderNumber;
     setOrderId(generatedId);
 
-    if (config.webhookUrl) {
-      const payload = {
-        username: `${config.storeName} • Pedidos`,
-        avatar_url: "https://i.imgur.com/8N40WzN.png",
-        embeds: [{
-          title: `🩸 NOVO PEDIDO - ${config.storeName} • ${generatedId}`,
-          description: "O cliente concluiu o checkout no modal e gerou a chave de pagamento PIX.",
-          color: 13369344, // #cc0000 vermelho
-          fields: [
-            { name: "📬 Meio de Contato", value: `**${contactMethod}**`, inline: false },
-            { name: "👤 Identificação do Cliente", value: `\`${contactValue.trim()}\``, inline: true },
-            { name: "📦 Produto Escolhido", value: `**${product.name}**`, inline: true },
-            { name: "💰 Valor do Produto", value: `**${product.priceText}**`, inline: true },
-            { name: "📅 Data e Hora", value: new Date().toLocaleString("pt-BR"), inline: false },
-            { name: "🔔 Status", value: "⚠️ **Aguardando confirmação e envio de comprovante no chat ao vivo (`/#/pedidos`)**", inline: false }
-          ],
-          footer: { text: `${config.storeName} • Sistema de Vendas Automático` },
-          timestamp: new Date().toISOString()
-        }]
-      };
-
-      try {
-        await fetch(config.webhookUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-      } catch (err) {
-        console.log("Aviso: Erro ao notificar Webhook:", err);
-      }
-    }
-
     setLoading(false);
     setOrderSuccess(true);
   };
