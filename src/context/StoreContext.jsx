@@ -643,6 +643,19 @@ export const StoreProvider = ({ children }) => {
       }]
     };
 
+    const getDirectDiscordUrl = () => {
+      if (overrideUrl && typeof overrideUrl === 'string' && (overrideUrl.includes('discord.com/api/webhooks/') || overrideUrl.includes('discordapp.com/api/webhooks/'))) {
+        return overrideUrl.trim();
+      }
+      const cfg = storeStateRef.current?.config || DEFAULT_STATE.config;
+      if (webhookType === 'approval') return cfg.webhookApprovalUrl || DEFAULT_STATE.config.webhookApprovalUrl;
+      if (webhookType === 'rejected') return cfg.webhookRejectedUrl || DEFAULT_STATE.config.webhookRejectedUrl;
+      if (webhookType === 'logs') return cfg.webhookLogsUrl || DEFAULT_STATE.config.webhookLogsUrl;
+      if (webhookType === 'msgLogs') return cfg.webhookMsgLogsUrl || DEFAULT_STATE.config.webhookMsgLogsUrl;
+      if (webhookType === 'staffJoin') return cfg.webhookStaffJoinUrl || DEFAULT_STATE.config.webhookStaffJoinUrl;
+      return cfg.webhookUrl || DEFAULT_STATE.config.webhookUrl;
+    };
+
     try {
       // PROXY BLINDADO: Envia para o backend (/api/webhook-proxy) preservando as URLs no servidor. Nenhuma URL do Discord é exposta na aba Network!
       const res = await fetch('/api/webhook-proxy', {
@@ -657,14 +670,44 @@ export const StoreProvider = ({ children }) => {
       });
 
       if (!res.ok) {
+        if (res.status === 404 || res.status === 502 || res.status === 503) {
+          console.warn(`⚠️ Proxy de Webhook (${res.status}) não disponível. Realizando failover seguro ao Discord...`);
+          const directUrl = getDirectDiscordUrl();
+          if (directUrl && directUrl.includes('discord')) {
+            const directRes = await fetch(directUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(payload)
+            });
+            if (directRes.ok || directRes.status === 204) return { success: true, mode: 'direct_fallback' };
+            const directErr = await directRes.text().catch(() => "");
+            return { success: false, status: directRes.status, error: directErr || "Falha no envio direto ao Discord" };
+          }
+        }
         const errText = await res.text().catch(() => "");
         console.error(`❌ Erro no Webhook do Discord (HTTP ${res.status}):`, errText);
         return { success: false, status: res.status, error: errText };
       }
-      return { success: true };
+      return { success: true, mode: 'proxy' };
     } catch (err) {
-      console.error("❌ Erro ao enviar notificação para o Proxy de Webhook:", err);
-      return { success: false, error: err.message };
+      console.warn("⚠️ Erro de conexão com o Proxy (/api/webhook-proxy):", err.message, "• Ativando failover direto...");
+      try {
+        const directUrl = getDirectDiscordUrl();
+        if (directUrl && directUrl.includes('discord')) {
+          const directRes = await fetch(directUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          if (directRes.ok || directRes.status === 204) return { success: true, mode: 'direct_fallback' };
+          const directErr = await directRes.text().catch(() => "");
+          return { success: false, status: directRes.status, error: directErr || "O Discord rejeitou a requisição direta." };
+        }
+      } catch (directCatchErr) {
+        console.error("❌ Falha tanto no Proxy quanto no envio direto ao Discord:", directCatchErr);
+        return { success: false, status: 0, error: `Verifique sua conexão com a internet ou adblock (${directCatchErr.message})` };
+      }
+      return { success: false, status: 0, error: err.message };
     }
   };
 
@@ -777,10 +820,12 @@ export const StoreProvider = ({ children }) => {
     const result = await notifyDiscordWebhook({ title, description, color, fields }, targetUrl, null, type);
 
     if (result && result.success) {
-      alert("✅ Teste disparado com sucesso através do Proxy Blindado! Verifique o canal no seu Discord agora.");
+      const modeMsg = result.mode === 'direct_fallback' ? 'através do canal direto (modo fallback ativo)' : 'através do Proxy Blindado no servidor';
+      alert(`✅ Teste disparado com sucesso (${modeMsg})! Verifique o canal no seu Discord agora.`);
       return true;
     } else {
-      alert(`❌ Erro ao disparar Webhook (${result?.status || 'Conexão/CORS'}): ${result?.error || 'Verifique se a URL copiada do Discord está completa e correta'}`);
+      const errMsg = result?.error ? (typeof result.error === 'string' ? result.error : JSON.stringify(result.error)) : 'Verifique se a URL copiada do Discord está correta';
+      alert(`❌ Erro ao disparar Webhook (${result?.status || 'Conexão/CORS'}): ${errMsg}`);
       return false;
     }
   };

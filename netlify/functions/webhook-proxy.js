@@ -41,8 +41,8 @@ export const handler = async (event) => {
 
     let targetUrl = '';
 
-    // Se overrideUrl for passado em testes pelo Admin (deve começar rigorosamente com discord)
-    if (overrideUrl && typeof overrideUrl === 'string' && overrideUrl.trim().toLowerCase().includes('discord.com/api/webhooks/')) {
+    // Se overrideUrl for passado em testes pelo Admin (deve ser uma URL válida do Discord)
+    if (overrideUrl && typeof overrideUrl === 'string' && (overrideUrl.trim().toLowerCase().includes('discord.com/api/webhooks/') || overrideUrl.trim().toLowerCase().includes('discordapp.com/api/webhooks/'))) {
       targetUrl = overrideUrl.trim();
     } else {
       // 1. Tentar buscar a URL atualizada no banco Supabase (tabela store_state)
