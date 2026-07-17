@@ -117,49 +117,135 @@ export const validateOrderPayload = (order) => {
   return { valid: true };
 };
 
-// 4. FORMATADOR SEGURO DE MENSAGENS (MARKDOWN INLINE -> JSX REACT SEM XSS)
+// 4. FORMATADOR SEGURO DE MENSAGENS (MARKDOWN INLINE -> JSX REACT SEM XSS & COM ALTO CONTRASTE)
 export const formatChatMessage = (text) => {
   if (!text || typeof text !== 'string') return null;
 
-  const lines = text.split('\n');
-  return lines.map((line, lineIdx) => {
-    // Regex que captura **negrito**, `código` ou URLs https://...
-    const tokens = line.split(/(\*\*.*?\*\*|`.*?`|https?:\/\/[^\s]+)/g);
+  // Regex que captura **negrito**, *negrito*, __negrito__, `código` ou URLs https://...
+  const tokens = text.split(/(\*\*[\s\S]*?\*\*|\*[\s\S]*?\*|__[\s\S]*?__|`[\s\S]*?`|https?:\/\/[^\s]+)/g);
 
-    const children = tokens.map((token, idx) => {
-      if (!token) return null;
+  return tokens.map((token, idx) => {
+    if (!token) return null;
 
-      if (token.startsWith('**') && token.endsWith('**') && token.length >= 4) {
-        return React.createElement(
-          'strong',
-          { key: idx, style: { fontWeight: '800', color: '#fff', textShadow: '0 0 1px rgba(255,255,255,0.4)' } },
-          token.slice(2, -2)
-        );
-      }
-
-      if (token.startsWith('`') && token.endsWith('`') && token.length >= 2) {
-        return React.createElement(
-          'code',
-          { key: idx, style: { background: 'rgba(0,0,0,0.45)', padding: '2px 7px', borderRadius: '4px', fontFamily: 'monospace', color: '#38bdf8', fontSize: '0.88em', border: '1px solid rgba(56,189,248,0.2)' } },
-          token.slice(1, -1)
-        );
-      }
-
-      if (token.match(/^https?:\/\//)) {
-        return React.createElement(
-          'a',
-          { key: idx, href: token, target: '_blank', rel: 'noopener noreferrer', style: { color: '#38bdf8', textDecoration: 'underline' } },
-          token
-        );
-      }
-
-      return React.createElement('span', { key: idx }, token);
-    });
-
-    if (lineIdx < lines.length - 1) {
-      children.push(React.createElement('br', { key: `br-${lineIdx}` }));
+    // **Negrito**
+    if (token.startsWith('**') && token.endsWith('**') && token.length >= 4) {
+      const innerText = token.slice(2, -2);
+      return React.createElement(
+        'strong',
+        { 
+          key: idx, 
+          style: { 
+            fontWeight: '900', 
+            color: '#ffea00', 
+            background: 'rgba(255, 234, 0, 0.15)', 
+            padding: '2px 6px', 
+            borderRadius: '4px', 
+            border: '1px solid rgba(255, 234, 0, 0.35)', 
+            textShadow: '0 0 5px rgba(255, 234, 0, 0.4)',
+            letterSpacing: '0.3px',
+            display: 'inline-block',
+            margin: '2px 0'
+          } 
+        },
+        innerText
+      );
     }
 
-    return React.createElement(React.Fragment, { key: lineIdx }, children);
+    // __Negrito__
+    if (token.startsWith('__') && token.endsWith('__') && token.length >= 4) {
+      const innerText = token.slice(2, -2);
+      return React.createElement(
+        'strong',
+        { 
+          key: idx, 
+          style: { 
+            fontWeight: '900', 
+            color: '#ffea00', 
+            background: 'rgba(255, 234, 0, 0.15)', 
+            padding: '2px 6px', 
+            borderRadius: '4px', 
+            border: '1px solid rgba(255, 234, 0, 0.35)', 
+            textShadow: '0 0 5px rgba(255, 234, 0, 0.4)',
+            letterSpacing: '0.3px',
+            display: 'inline-block',
+            margin: '2px 0'
+          } 
+        },
+        innerText
+      );
+    }
+
+    // *Negrito*
+    if (token.startsWith('*') && token.endsWith('*') && token.length >= 2 && !token.startsWith('**')) {
+      const innerText = token.slice(1, -1);
+      return React.createElement(
+        'strong',
+        { 
+          key: idx, 
+          style: { 
+            fontWeight: '900', 
+            color: '#ffea00', 
+            background: 'rgba(255, 234, 0, 0.15)', 
+            padding: '2px 6px', 
+            borderRadius: '4px', 
+            border: '1px solid rgba(255, 234, 0, 0.35)', 
+            textShadow: '0 0 5px rgba(255, 234, 0, 0.4)',
+            letterSpacing: '0.3px',
+            display: 'inline-block',
+            margin: '2px 0'
+          } 
+        },
+        innerText
+      );
+    }
+
+    // `Código inline`
+    if (token.startsWith('`') && token.endsWith('`') && token.length >= 2) {
+      return React.createElement(
+        'code',
+        { 
+          key: idx, 
+          style: { 
+            background: 'rgba(0,0,0,0.55)', 
+            padding: '3px 8px', 
+            borderRadius: '4px', 
+            fontFamily: 'monospace', 
+            color: '#38bdf8', 
+            fontSize: '0.88em', 
+            border: '1px solid rgba(56,189,248,0.3)',
+            fontWeight: '700'
+          } 
+        },
+        token.slice(1, -1)
+      );
+    }
+
+    // URLs
+    if (token.match(/^https?:\/\//)) {
+      return React.createElement(
+        'a',
+        { key: idx, href: token, target: '_blank', rel: 'noopener noreferrer', style: { color: '#38bdf8', textDecoration: 'underline', fontWeight: '600' } },
+        token
+      );
+    }
+
+    // Texto comum que pode conter quebras de linha (\n)
+    const subLines = token.split('\n');
+    if (subLines.length === 1) {
+      return React.createElement('span', { key: idx }, token);
+    }
+
+    return React.createElement(
+      React.Fragment,
+      { key: idx },
+      subLines.map((subLine, subIdx) => {
+        return React.createElement(
+          React.Fragment,
+          { key: subIdx },
+          React.createElement('span', null, subLine),
+          subIdx < subLines.length - 1 ? React.createElement('br') : null
+        );
+      })
+    );
   });
 };

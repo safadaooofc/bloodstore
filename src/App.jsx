@@ -17,21 +17,26 @@ export default function App() {
   });
 
   useEffect(() => {
-    const handleHashChange = () => {
+    const handleRouteUpdate = () => {
       const hash = window.location.hash;
-      if (hash.startsWith('#/staff')) {
+      const path = window.location.pathname;
+      if (hash.startsWith('#/staff') || path.startsWith('/staff')) {
         setCurrentRoute('staff');
-      } else if (hash.startsWith('#/checkout')) {
+      } else if (hash.startsWith('#/checkout') || path.startsWith('/checkout')) {
         setCurrentRoute('checkout');
-      } else if (hash.startsWith('#/pedidos')) {
+      } else if (hash.startsWith('#/pedidos') || path.startsWith('/pedidos')) {
         setCurrentRoute('orders');
       } else {
         setCurrentRoute('store');
       }
     };
 
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('hashchange', handleRouteUpdate);
+    window.addEventListener('popstate', handleRouteUpdate);
+    return () => {
+      window.removeEventListener('hashchange', handleRouteUpdate);
+      window.removeEventListener('popstate', handleRouteUpdate);
+    };
   }, []);
 
   const navigateToStaff = () => {

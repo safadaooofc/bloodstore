@@ -41,6 +41,7 @@ export const ClientOrdersPage = ({ onBackToStore }) => {
   });
 
   const selectedOrder = userOrders.find(o => o.id === selectedOrderId) || userOrders[0];
+  const myOrders = userOrders;
 
   useEffect(() => {
     if (userOrders.length > 0 && !selectedOrderId) {
@@ -333,7 +334,7 @@ export const ClientOrdersPage = ({ onBackToStore }) => {
                   Abaixo estão os dados/conteúdo da sua entrega liberados diretamente pelo nosso Staff:
                 </p>
                 <div style={{ background: '#0d1a12', border: '1px solid #22c55e', borderRadius: '6px', padding: '14px', fontFamily: 'monospace', fontSize: '0.95rem', color: '#fff', whiteSpace: 'pre-wrap', userSelect: 'all', position: 'relative' }}>
-                  {selectedOrder.deliveryContent}
+                  {formatChatMessage(selectedOrder.deliveryContent)}
                   <button 
                     onClick={() => {
                       navigator.clipboard.writeText(selectedOrder.deliveryContent);
