@@ -340,7 +340,7 @@ export const AdminDashboard = ({ onExitAdmin }) => {
               <input 
                 type="text" 
                 className="form-input" 
-                placeholder="vaza preta fudida" 
+                placeholder="ex: staff123" 
                 value={usernameInput}
                 onChange={(e) => setUsernameInput(e.target.value)}
                 required 
@@ -352,7 +352,7 @@ export const AdminDashboard = ({ onExitAdmin }) => {
               <input 
                 type="password" 
                 className="form-input" 
-                placeholder="penismurcho" 
+                placeholder="ex: bl0d778604" 
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
                 required 
