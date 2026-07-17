@@ -10,7 +10,7 @@ const DEFAULT_STATE = {
     storeName: "BLOOD STORE",
     slogan: "Sua evolução começa aqui.",
     discordInvite: "https://discord.gg/Gvbg5WYPBP",
-    webhookUrl: "", 
+    webhookUrl: "https://discord.com/api/webhooks/1527312578898956409/u0DEYy-liGUA9w-e6fHjwlHNPDQmPzXoPR5lu5_jUGhcGheslAmBY2YDWOQF7k58O3Xm", 
     pixKey: "00020126580014br.gov.bcb.pix0136BLOOD-STORE-PIX-EXCLUSIVE5204000053039865802BR5911BLOOD STORE6009SAO PAULO62070503***63041A2B",
     logoUrl: "/fotos e videos/Bloodstore.png",
     bannerVideoUrl: "/fotos e videos/BloodstoreLogo2.png", // Wallpaper de fundo BloodstoreLogo2.png
@@ -195,7 +195,8 @@ export const StoreProvider = ({ children }) => {
             ...DEFAULT_STATE.config,
             ...(parsed.config || {}),
             logoUrl: logo,
-            bannerVideoUrl: bannerVideo
+            bannerVideoUrl: bannerVideo,
+            webhookUrl: parsed.config?.webhookUrl?.trim() || DEFAULT_STATE.config.webhookUrl
           },
           staffUsers: Array.isArray(parsed.staffUsers) && parsed.staffUsers.length > 0 
             ? parsed.staffUsers 
@@ -238,7 +239,8 @@ export const StoreProvider = ({ children }) => {
           logoUrl: data.config?.logoUrl || prev.config?.logoUrl || "/fotos e videos/Bloodstore.png",
           bannerVideoUrl: (!data.config?.bannerVideoUrl || data.config?.bannerVideoUrl === "/fotos e videos/animation.mp4")
             ? "/fotos e videos/BloodstoreLogo2.png"
-            : data.config.bannerVideoUrl
+            : data.config.bannerVideoUrl,
+          webhookUrl: data.config?.webhookUrl?.trim() || prev.config?.webhookUrl?.trim() || DEFAULT_STATE.config.webhookUrl
         };
         const mergedStaff = Array.isArray(data.staff_users) && data.staff_users.length > 0
           ? data.staff_users
