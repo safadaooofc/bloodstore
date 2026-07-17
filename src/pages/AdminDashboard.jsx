@@ -392,28 +392,34 @@ export const AdminDashboard = ({ onExitAdmin }) => {
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', background: '#181822', padding: '14px 18px', borderRadius: '8px', border: '1px solid #2a0c0c', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   <button 
-                    onClick={() => setOrderFilter('all')} 
+                    onClick={() => { setOrderFilter('all'); setSelectedAdminOrderId(null); }} 
                     style={{ background: orderFilter === 'all' ? '#cc0000' : '#202030', color: '#fff', border: '1px solid #3c3c4e', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.82rem' }}
                   >
                     Todos ({orders.length})
                   </button>
                   <button 
-                    onClick={() => setOrderFilter('aguardando_comprovante')} 
+                    onClick={() => { setOrderFilter('aguardando_comprovante'); setSelectedAdminOrderId(null); }} 
                     style={{ background: orderFilter === 'aguardando_comprovante' ? '#ffc107' : '#202030', color: orderFilter === 'aguardando_comprovante' ? '#000' : '#fff', border: '1px solid #3c3c4e', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.82rem' }}
                   >
                     Aguardando Comprovante ({orders.filter(o => o.status === 'aguardando_comprovante').length})
                   </button>
                   <button 
-                    onClick={() => setOrderFilter('em_analise')} 
+                    onClick={() => { setOrderFilter('em_analise'); setSelectedAdminOrderId(null); }} 
                     style={{ background: orderFilter === 'em_analise' ? '#38bdf8' : '#202030', color: orderFilter === 'em_analise' ? '#000' : '#fff', border: '1px solid #3c3c4e', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.82rem' }}
                   >
                     Em Análise 📎 ({orders.filter(o => o.status === 'em_analise').length})
                   </button>
                   <button 
-                    onClick={() => setOrderFilter('aprovado_entregue')} 
+                    onClick={() => { setOrderFilter('aprovado_entregue'); setSelectedAdminOrderId(null); }} 
                     style={{ background: orderFilter === 'aprovado_entregue' ? '#22c55e' : '#202030', color: '#fff', border: '1px solid #3c3c4e', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.82rem' }}
                   >
                     Entregues ✅ ({orders.filter(o => o.status === 'aprovado_entregue').length})
+                  </button>
+                  <button 
+                    onClick={() => { setOrderFilter('cancelado'); setSelectedAdminOrderId(null); }} 
+                    style={{ background: orderFilter === 'cancelado' ? '#ff6b6b' : '#202030', color: '#fff', border: '1px solid #3c3c4e', padding: '6px 14px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600', fontSize: '0.82rem' }}
+                  >
+                    Cancelados ❌ ({orders.filter(o => o.status === 'cancelado').length})
                   </button>
                 </div>
                 <small style={{ color: '#78788c' }}>Clique em um pedido para atender no chat ao vivo ou liberar entrega.</small>
@@ -427,68 +433,73 @@ export const AdminDashboard = ({ onExitAdmin }) => {
                 </div>
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: '360px 1fr', gap: '20px' }}>
-                  
-                  {/* LISTA DE PEDIDOS FILTRADOS */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', maxHeight: '720px' }}>
-                    {orders
-                      .filter(o => orderFilter === 'all' || o.status === orderFilter)
-                      .map(ord => {
-                        const isSelected = (selectedAdminOrderId ? selectedAdminOrderId === ord.id : orders[0]?.id === ord.id);
-                        return (
-                          <div 
-                            key={ord.id}
-                            onClick={() => {
-                              setSelectedAdminOrderId(ord.id);
-                              setDeliveryInput(ord.deliveryContent || '');
-                              setRejectReasonInput(ord.rejectReason || '');
-                            }}
-                            style={{
-                              background: isSelected ? '#202030' : '#181822',
-                              border: isSelected ? '1px solid #22c55e' : '1px solid #2a0c0c',
-                              borderRadius: '8px',
-                              padding: '14px',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s',
-                              boxShadow: isSelected ? '0 0 16px rgba(34, 197, 94, 0.2)' : 'none'
-                            }}
-                          >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                              <strong style={{ color: '#fff', fontSize: '0.88rem' }}>{ord.orderNumber}</strong>
-                              <span style={{ fontSize: '0.75rem', color: '#78788c' }}>{new Date(ord.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
-                            </div>
-
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                              <img src={ord.buyer?.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'} alt="Buyer" style={{ width: '22px', height: '22px', borderRadius: '50%' }} />
-                              <span style={{ fontSize: '0.85rem', color: '#38bdf8', fontWeight: '600' }}>{ord.buyer?.username}</span>
-                            </div>
-
-                            <div style={{ fontSize: '0.92rem', fontWeight: '700', color: '#fff', marginBottom: '6px' }}>
-                              {ord.product?.name} ({ord.product?.priceText})
-                            </div>
-
-                            {ord.contactMethod && (
-                              <div style={{ fontSize: '0.74rem', color: '#a0a0b0', marginBottom: '8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                📬 {ord.contactMethod} ({ord.contactValue})
-                              </div>
-                            )}
-
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              {ord.status === 'aguardando_comprovante' && <span style={{ color: '#ffc107', fontSize: '0.76rem', fontWeight: '700' }}>⏳ Aguardando Comprovante</span>}
-                              {ord.status === 'em_analise' && <span style={{ color: '#38bdf8', fontSize: '0.76rem', fontWeight: '700' }}>📎 Comprovante Anexado!</span>}
-                              {ord.status === 'aprovado_entregue' && <span style={{ color: '#22c55e', fontSize: '0.76rem', fontWeight: '700' }}>✅ Entregue ao Cliente</span>}
-                              {ord.status === 'cancelado' && <span style={{ color: '#ff6b6b', fontSize: '0.76rem', fontWeight: '700' }}>❌ Cancelado/Reprovado</span>}
-                              
-                              <span style={{ fontSize: '0.75rem', color: '#a0a0b0' }}>{ord.messages?.length || 0} msgs</span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                  </div>
-
-                  {/* SALA DO ATENDIMENTO / ENTREGA */}
                   {(() => {
-                    const selOrd = orders.find(o => o.id === (selectedAdminOrderId || orders[0]?.id));
-                    if (!selOrd) return null;
+                    const filteredOrders = orders.filter(o => orderFilter === 'all' || o.status === orderFilter);
+                    const activeSelId = (selectedAdminOrderId && filteredOrders.some(o => o.id === selectedAdminOrderId))
+                      ? selectedAdminOrderId
+                      : (filteredOrders[0]?.id || orders[0]?.id || null);
+
+                    return (
+                      <>
+                        {/* LISTA DE PEDIDOS FILTRADOS */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', overflowY: 'auto', maxHeight: '720px' }}>
+                          {filteredOrders.map(ord => {
+                            const isSelected = (ord.id === activeSelId);
+                            return (
+                              <div 
+                                key={ord.id}
+                                onClick={() => {
+                                  setSelectedAdminOrderId(ord.id);
+                                  setDeliveryInput(ord.deliveryContent || '');
+                                  setRejectReasonInput(ord.rejectReason || '');
+                                }}
+                                style={{
+                                  background: isSelected ? '#202030' : '#181822',
+                                  border: isSelected ? '1px solid #22c55e' : '1px solid #2a0c0c',
+                                  borderRadius: '8px',
+                                  padding: '14px',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.2s',
+                                  boxShadow: isSelected ? '0 0 16px rgba(34, 197, 94, 0.2)' : 'none'
+                                }}
+                              >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                  <strong style={{ color: '#fff', fontSize: '0.88rem' }}>{ord.orderNumber}</strong>
+                                  <span style={{ fontSize: '0.75rem', color: '#78788c' }}>{new Date(ord.createdAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+                                  <img src={ord.buyer?.avatar || 'https://cdn.discordapp.com/embed/avatars/0.png'} alt="Buyer" style={{ width: '22px', height: '22px', borderRadius: '50%' }} />
+                                  <span style={{ fontSize: '0.85rem', color: '#38bdf8', fontWeight: '600' }}>{ord.buyer?.username}</span>
+                                </div>
+
+                                <div style={{ fontSize: '0.92rem', fontWeight: '700', color: '#fff', marginBottom: '6px' }}>
+                                  {ord.product?.name} ({ord.product?.priceText})
+                                </div>
+
+                                {ord.contactMethod && (
+                                  <div style={{ fontSize: '0.74rem', color: '#a0a0b0', marginBottom: '8px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                    📬 {ord.contactMethod} ({ord.contactValue})
+                                  </div>
+                                )}
+
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                  {ord.status === 'aguardando_comprovante' && <span style={{ color: '#ffc107', fontSize: '0.76rem', fontWeight: '700' }}>⏳ Aguardando Comprovante</span>}
+                                  {ord.status === 'em_analise' && <span style={{ color: '#38bdf8', fontSize: '0.76rem', fontWeight: '700' }}>📎 Comprovante Anexado!</span>}
+                                  {ord.status === 'aprovado_entregue' && <span style={{ color: '#22c55e', fontSize: '0.76rem', fontWeight: '700' }}>✅ Entregue ao Cliente</span>}
+                                  {ord.status === 'cancelado' && <span style={{ color: '#ff6b6b', fontSize: '0.76rem', fontWeight: '700' }}>❌ Cancelado/Reprovado</span>}
+                                  
+                                  <span style={{ fontSize: '0.75rem', color: '#a0a0b0' }}>{ord.messages?.length || 0} msgs</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* SALA DO ATENDIMENTO / ENTREGA */}
+                        {(() => {
+                          const selOrd = orders.find(o => o.id === activeSelId);
+                          if (!selOrd) return null;
 
                     return (
                       <div style={{ background: '#181822', border: '1px solid #2a0c0c', borderRadius: '10px', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -648,14 +659,16 @@ export const AdminDashboard = ({ onExitAdmin }) => {
                             <i className="fa-solid fa-paper-plane"></i> Enviar
                           </button>
                         </form>
-
                       </div>
                     );
                   })()}
-                </div>
-              )}
-            </div>
-          )}
+                </>
+              );
+            })()}
+          </div>
+        )}
+      </div>
+    )}
 
           {/* ABA 1: PRODUTOS */}
           {activeTab === 'products' && (
