@@ -1,17 +1,22 @@
 import React from 'react';
+import { useStore } from '../context/StoreContext';
 
 export const ProductCard = ({ product, onSelectProduct }) => {
+  const { categories } = useStore();
   const benefits = Array.isArray(product.benefits) 
     ? product.benefits 
     : (typeof product.benefits === 'string' ? product.benefits.split('\n') : []);
+
+  const catObj = (categories || []).find(c => c.id === product.category || c.name === product.category);
+  const displayCategoryName = catObj ? catObj.name : product.category;
 
   return (
     <div className="product-card">
       <div>
         <div className="product-img-box">
-          {product.category && (
+          {displayCategoryName && (
             <span className="product-category-badge">
-              <i className="fa-solid fa-tag"></i> {product.category}
+              <i className="fa-solid fa-tag"></i> {displayCategoryName}
             </span>
           )}
           <img 

@@ -127,8 +127,8 @@ export const AdminDashboard = ({ onExitAdmin }) => {
   const [editBenefits, setEditBenefits] = useState('');
   const [editPixKey, setEditPixKey] = useState('');
   const [editQrCodeUrl, setEditQrCodeUrl] = useState('');
-  const [newProdCategory, setNewProdCategory] = useState('cat_geral');
-  const [editCategory, setEditCategory] = useState('');
+  const [newProdCategory, setNewProdCategory] = useState('Outros / Diversos');
+  const [editCategory, setEditCategory] = useState('Outros / Diversos');
 
   // Form states para Categorias & Cupons
   const [newCatName, setNewCatName] = useState('');
@@ -236,7 +236,7 @@ export const AdminDashboard = ({ onExitAdmin }) => {
     addProduct({
       name: newProdName.trim(),
       slug: newProdName.trim().toLowerCase().replace(/\s+/g, '-'),
-      category: newProdCategory || 'cat_geral',
+      category: newProdCategory || 'Outros / Diversos',
       priceText: newProdPrice.trim().startsWith('R$') ? newProdPrice.trim() : `R$ ${newProdPrice.trim()}`,
       image: newProdImage.trim(),
       icon: newProdIcon.trim() || 'fa-solid fa-box',
@@ -255,7 +255,7 @@ export const AdminDashboard = ({ onExitAdmin }) => {
   const startEditProduct = (prod) => {
     setEditingId(prod.id);
     setEditName(prod.name);
-    setEditCategory(prod.category || 'cat_geral');
+    setEditCategory(prod.category || 'Outros / Diversos');
     setEditPrice(prod.priceText);
     setEditImage(prod.image);
     setEditBenefits(Array.isArray(prod.benefits) ? prod.benefits.join('\n') : prod.benefits);
@@ -268,7 +268,7 @@ export const AdminDashboard = ({ onExitAdmin }) => {
     const staffName = currentStaff?.name || currentStaff?.username || "Administrador";
     updateProduct(id, {
       name: editName.trim(),
-      category: editCategory || 'cat_geral',
+      category: editCategory || 'Outros / Diversos',
       priceText: editPrice.trim().startsWith('R$') ? editPrice.trim() : `R$ ${editPrice.trim()}`,
       image: editImage.trim(),
       benefits: benefitsArray,
@@ -1170,8 +1170,9 @@ export const AdminDashboard = ({ onExitAdmin }) => {
                       onChange={(e) => setNewProdCategory(e.target.value)}
                       style={{ background: '#181822', color: '#fff' }}
                     >
+                      <option value="Outros / Diversos">Outros / Diversos</option>
                       {(categories || []).map(cat => (
-                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        <option key={cat.id || cat.name} value={cat.name}>{cat.name}</option>
                       ))}
                     </select>
                   </div>
@@ -1304,8 +1305,9 @@ export const AdminDashboard = ({ onExitAdmin }) => {
                                   value={editCategory} 
                                   onChange={(e) => setEditCategory(e.target.value)} 
                                 >
+                                  <option value="Outros / Diversos">Outros / Diversos</option>
                                   {(categories || []).map(cat => (
-                                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                    <option key={cat.id || cat.name} value={cat.name}>{cat.name}</option>
                                   ))}
                                 </select>
                                 <input 
@@ -1327,7 +1329,7 @@ export const AdminDashboard = ({ onExitAdmin }) => {
                               <div>
                                 <strong style={{ display: 'block' }}>{prod.name}</strong>
                                 <span style={{ fontSize: '0.75rem', background: '#202030', color: '#ffc107', padding: '2px 8px', borderRadius: '4px', display: 'inline-block', marginTop: '4px' }}>
-                                  {(categories || []).find(c => c.id === prod.category)?.name || 'Geral'}
+                                  {(categories || []).find(c => c.id === prod.category || c.name === prod.category)?.name || prod.category || 'Outros / Diversos'}
                                 </span>
                                 {prod.pixKey && <small style={{ color: '#38bdf8', fontSize: '0.75rem', display: 'block', marginTop: '2px' }}>PIX: {prod.pixKey}</small>}
                               </div>
