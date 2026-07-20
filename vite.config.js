@@ -41,12 +41,12 @@ function viteWebhookPlugin() {
                 const rows = await supaRes.json();
                 if (rows && rows.length > 0 && rows[0].config) {
                   const cfg = rows[0].config;
-                  if (type === 'approval') targetUrl = cfg.webhookApprovalUrl || DEFAULT_WEBHOOKS.approval;
-                  else if (type === 'rejected') targetUrl = cfg.webhookRejectedUrl || DEFAULT_WEBHOOKS.rejected;
-                  else if (type === 'logs') targetUrl = cfg.webhookLogsUrl || DEFAULT_WEBHOOKS.logs;
-                  else if (type === 'msgLogs') targetUrl = cfg.webhookMsgLogsUrl || DEFAULT_WEBHOOKS.msgLogs;
-                  else if (type === 'staffJoin') targetUrl = cfg.webhookStaffJoinUrl || DEFAULT_WEBHOOKS.staffJoin;
-                  else targetUrl = cfg.webhookUrl || DEFAULT_WEBHOOKS.sales;
+                  if (type === 'approval') targetUrl = (cfg.webhookApprovalUrl && cfg.webhookApprovalUrl.trim()) ? cfg.webhookApprovalUrl.trim() : DEFAULT_WEBHOOKS.approval;
+                  else if (type === 'rejected') targetUrl = (cfg.webhookRejectedUrl && cfg.webhookRejectedUrl.trim()) ? cfg.webhookRejectedUrl.trim() : DEFAULT_WEBHOOKS.rejected;
+                  else if (type === 'logs') targetUrl = (cfg.webhookLogsUrl && cfg.webhookLogsUrl.trim()) ? cfg.webhookLogsUrl.trim() : DEFAULT_WEBHOOKS.logs;
+                  else if (type === 'msgLogs') targetUrl = (cfg.webhookMsgLogsUrl && cfg.webhookMsgLogsUrl.trim()) ? cfg.webhookMsgLogsUrl.trim() : DEFAULT_WEBHOOKS.msgLogs;
+                  else if (type === 'staffJoin') targetUrl = (cfg.webhookStaffJoinUrl && cfg.webhookStaffJoinUrl.trim()) ? cfg.webhookStaffJoinUrl.trim() : DEFAULT_WEBHOOKS.staffJoin;
+                  else targetUrl = (cfg.webhookUrl && cfg.webhookUrl.trim()) ? cfg.webhookUrl.trim() : DEFAULT_WEBHOOKS.sales;
                 }
               }
             } catch (e) {

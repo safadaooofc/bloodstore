@@ -612,6 +612,20 @@ export const StoreProvider = ({ children }) => {
     }
   };
 
+  // Helper Central Blindado para Atualização Imediata e Síncrona do Estado + Supabase sem Race Condition
+  const updateStoreAndSync = async (updaterFn, logAction = null, logDetails = null, staffName = "Admin / Staff") => {
+    markLocalUpdate();
+    const prev = storeStateRef.current;
+    const nextState = updaterFn(prev);
+    storeStateRef.current = nextState;
+    setStoreState(nextState);
+    const syncRes = await forceSyncToCloud(nextState);
+    if (logAction && logDetails) {
+      await notifyDiscordLogs(logAction, logDetails, staffName);
+    }
+    return syncRes;
+  };
+
   // Funções CRUD de Configurações
   const updateConfig = (newConfig, staffName = "Admin / Staff") => {
     const sanitized = { ...newConfig };
@@ -619,34 +633,21 @@ export const StoreProvider = ({ children }) => {
     if (sanitized.slogan) sanitized.slogan = sanitizeString(sanitized.slogan, 200);
     if (sanitized.discordInvite) sanitized.discordInvite = sanitizeString(sanitized.discordInvite, 300);
 
-    markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      nextState = {
-        ...prev,
-        config: { ...prev.config, ...sanitized }
-      };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
-    forceSyncToCloud(nextState);
-    notifyDiscordLogs("Configurações & Webhooks Atualizados", `O usuário @${staffName} atualizou as configurações gerais ou links de Webhook da loja.`, staffName);
+    updateStoreAndSync(
+      prev => ({ ...prev, config: { ...prev.config, ...sanitized } }),
+      "Configurações & Webhooks Atualizados",
+      `O usuário @${staffName} atualizou as configurações gerais ou links de Webhook da loja.`,
+      staffName
+    );
   };
 
   const updateAllStaffUsers = async (newStaffList, staffName = "Admin / Staff") => {
-    markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      nextState = {
-        ...prev,
-        staffUsers: ensureRequiredStaff(newStaffList)
-      };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
-    const syncRes = await forceSyncToCloud(nextState);
-    notifyDiscordLogs("Lista de Equipe Atualizada no Banco", `Os dados da equipe Staff foram atualizados no banco de dados na nuvem por @${staffName}.`, staffName);
-    return syncRes;
+    return await updateStoreAndSync(
+      prev => ({ ...prev, staffUsers: ensureRequiredStaff(newStaffList) }),
+      "Lista de Equipe Atualizada no Banco",
+      `Os dados da equipe Staff foram atualizados no banco de dados na nuvem por @${staffName}.`,
+      staffName
+    );
   };
 
   // Funções CRUD de Sub-Administradores (Equipe Staff)
@@ -657,18 +658,12 @@ export const StoreProvider = ({ children }) => {
       username: sanitizeString(newUser.username || '', 50),
       name: sanitizeString(newUser.name || '', 100)
     };
-    markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      nextState = {
-        ...prev,
-        staffUsers: ensureRequiredStaff([...(prev.staffUsers || DEFAULT_STATE.staffUsers), { ...cleanUser, id }])
-      };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
-    forceSyncToCloud(nextState);
-    notifyDiscordLogs("Membro Staff Criado", `Novo membro cadastrado: @${cleanUser.username} (${cleanUser.name}) - Cargo: ${cleanUser.role || 'staff'}`, staffName);
+    updateStoreAndSync(
+      prev => ({ ...prev, staffUsers: ensureRequiredStaff([...(prev.staffUsers || DEFAULT_STATE.staffUsers), { ...cleanUser, id }]) }),
+      "Membro Staff Criado",
+      `Novo membro cadastrado: @${cleanUser.username} (${cleanUser.name}) - Cargo: ${cleanUser.role || 'staff'}`,
+      staffName
+    );
   };
 
   const updateStaffUser = (id, updatedFields, staffName = "Admin / Staff") => {
@@ -676,18 +671,12 @@ export const StoreProvider = ({ children }) => {
     if (cleanFields.username) cleanFields.username = sanitizeString(cleanFields.username, 50);
     if (cleanFields.name) cleanFields.name = sanitizeString(cleanFields.name, 100);
 
-    markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      nextState = {
-        ...prev,
-        staffUsers: ensureRequiredStaff((prev.staffUsers || DEFAULT_STATE.staffUsers).map(u => u.id === id ? { ...u, ...cleanFields } : u))
-      };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
-    forceSyncToCloud(nextState);
-    notifyDiscordLogs("Membro Staff Editado / Senha Alterada", `O membro Staff com ID ${id} teve seus dados ou senha modificados por @${staffName}.`, staffName);
+    updateStoreAndSync(
+      prev => ({ ...prev, staffUsers: ensureRequiredStaff((prev.staffUsers || DEFAULT_STATE.staffUsers).map(u => u.id === id ? { ...u, ...cleanFields } : u)) }),
+      "Membro Staff Editado / Senha Alterada",
+      `O membro Staff com ID ${id} teve seus dados ou senha modificados por @${staffName}.`,
+      staffName
+    );
   };
 
   const deleteStaffUser = (id, staffName = "Admin / Staff") => {
@@ -696,18 +685,12 @@ export const StoreProvider = ({ children }) => {
       alert("🔒 Os usuários xsag (Dono) e kiover (Desenvolvedor) são protegidos e não podem ser removidos.");
       return;
     }
-    markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      nextState = {
-        ...prev,
-        staffUsers: ensureRequiredStaff((prev.staffUsers || DEFAULT_STATE.staffUsers).filter(u => u.id !== id))
-      };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
-    forceSyncToCloud(nextState);
-    notifyDiscordLogs("Membro Staff Removido", `O membro Staff "@${target?.username || id}" (${target?.name || ''}) foi removido da equipe.`, staffName);
+    updateStoreAndSync(
+      prev => ({ ...prev, staffUsers: ensureRequiredStaff((prev.staffUsers || DEFAULT_STATE.staffUsers).filter(u => u.id !== id)) }),
+      "Membro Staff Removido",
+      `O membro Staff "@${target?.username || id}" (${target?.name || ''}) foi removido da equipe.`,
+      staffName
+    );
   };
 
   // Funções CRUD de Produtos
@@ -718,18 +701,12 @@ export const StoreProvider = ({ children }) => {
       name: sanitizeString(newProd.name || '', 150),
       priceText: sanitizeString(newProd.priceText || '', 30)
     };
-    markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      nextState = {
-        ...prev,
-        products: [...prev.products, { ...cleanProd, id }]
-      };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
-    forceSyncToCloud(nextState);
-    notifyDiscordLogs("Novo Produto Cadastrado", `Produto criado: "${cleanProd.name}" com valor estabelecido de ${cleanProd.priceText}.`, staffName);
+    updateStoreAndSync(
+      prev => ({ ...prev, products: [...prev.products, { ...cleanProd, id }] }),
+      "Novo Produto Cadastrado",
+      `Produto criado: "${cleanProd.name}" com valor estabelecido de ${cleanProd.priceText}.`,
+      staffName
+    );
   };
 
   const updateProduct = (id, updatedFields, staffName = "Admin / Staff") => {
@@ -737,34 +714,22 @@ export const StoreProvider = ({ children }) => {
     if (cleanFields.name) cleanFields.name = sanitizeString(cleanFields.name, 150);
     if (cleanFields.priceText) cleanFields.priceText = sanitizeString(cleanFields.priceText, 30);
 
-    markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      nextState = {
-        ...prev,
-        products: prev.products.map(p => p.id === id ? { ...p, ...cleanFields } : p)
-      };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
-    forceSyncToCloud(nextState);
-    notifyDiscordLogs("Produto Atualizado no Catálogo", `O produto (ID: ${id}) "${cleanFields.name || 'Modificado'}" foi atualizado na loja.`, staffName);
+    updateStoreAndSync(
+      prev => ({ ...prev, products: prev.products.map(p => p.id === id ? { ...p, ...cleanFields } : p) }),
+      "Produto Atualizado no Catálogo",
+      `O produto (ID: ${id}) "${cleanFields.name || 'Modificado'}" foi atualizado na loja.`,
+      staffName
+    );
   };
 
   const deleteProduct = (id, staffName = "Admin / Staff") => {
     const target = (storeStateRef.current.products || []).find(p => p.id === id);
-    markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      nextState = {
-        ...prev,
-        products: prev.products.filter(p => p.id !== id)
-      };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
-    forceSyncToCloud(nextState);
-    notifyDiscordLogs("Produto Excluído", `O produto "${target?.name || id}" foi excluído permanentemente do catálogo.`, staffName);
+    updateStoreAndSync(
+      prev => ({ ...prev, products: prev.products.filter(p => p.id !== id) }),
+      "Produto Excluído",
+      `O produto "${target?.name || id}" foi excluído permanentemente do catálogo.`,
+      staffName
+    );
   };
 
   // Funções CRUD de Categorias
@@ -775,18 +740,12 @@ export const StoreProvider = ({ children }) => {
       name: sanitizeString(newCat.name || '', 100),
       icon: sanitizeString(newCat.icon || 'fa-solid fa-tag', 100)
     };
-    markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      nextState = {
-        ...prev,
-        categories: [...(prev.categories || DEFAULT_STATE.categories), { ...cleanCat, id }]
-      };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
-    forceSyncToCloud(nextState);
-    notifyDiscordLogs("Nova Categoria Cadastrada", `Categoria criada: "${cleanCat.name}" por @${staffName}.`, staffName);
+    updateStoreAndSync(
+      prev => ({ ...prev, categories: [...(prev.categories || DEFAULT_STATE.categories), { ...cleanCat, id }] }),
+      "Nova Categoria Cadastrada",
+      `Categoria criada: "${cleanCat.name}" por @${staffName}.`,
+      staffName
+    );
   };
 
   const updateCategory = (id, updatedFields, staffName = "Admin / Staff") => {
@@ -794,34 +753,22 @@ export const StoreProvider = ({ children }) => {
     if (cleanFields.name) cleanFields.name = sanitizeString(cleanFields.name, 100);
     if (cleanFields.icon) cleanFields.icon = sanitizeString(cleanFields.icon, 100);
 
-    markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      nextState = {
-        ...prev,
-        categories: (prev.categories || DEFAULT_STATE.categories).map(c => c.id === id || c.name === id ? { ...c, ...cleanFields } : c)
-      };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
-    forceSyncToCloud(nextState);
-    notifyDiscordLogs("Categoria Atualizada", `A categoria "${cleanFields.name || id}" foi atualizada por @${staffName}.`, staffName);
+    updateStoreAndSync(
+      prev => ({ ...prev, categories: (prev.categories || DEFAULT_STATE.categories).map(c => c.id === id || c.name === id ? { ...c, ...cleanFields } : c) }),
+      "Categoria Atualizada",
+      `A categoria "${cleanFields.name || id}" foi atualizada por @${staffName}.`,
+      staffName
+    );
   };
 
   const deleteCategory = (idOrName, staffName = "Admin / Staff") => {
     const target = (storeStateRef.current.categories || DEFAULT_STATE.categories).find(c => c.id === idOrName || c.name === idOrName);
-    markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      nextState = {
-        ...prev,
-        categories: (prev.categories || DEFAULT_STATE.categories).filter(c => c.id !== idOrName && c.name !== idOrName)
-      };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
-    forceSyncToCloud(nextState);
-    notifyDiscordLogs("Categoria Excluída", `A categoria "${target?.name || idOrName}" foi excluída permanentemente por @${staffName}.`, staffName);
+    updateStoreAndSync(
+      prev => ({ ...prev, categories: (prev.categories || DEFAULT_STATE.categories).filter(c => c.id !== idOrName && c.name !== idOrName) }),
+      "Categoria Excluída",
+      `A categoria "${target?.name || idOrName}" foi excluída permanentemente por @${staffName}.`,
+      staffName
+    );
   };
 
   // Funções CRUD de Cupons de Desconto
@@ -835,53 +782,37 @@ export const StoreProvider = ({ children }) => {
       usedCount: Number(newCupom.usedCount) || 0,
       active: newCupom.active !== false
     };
-    markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      nextState = { ...prev, coupons: [...(prev.coupons || DEFAULT_STATE.coupons), { ...clean, id }] };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
-    forceSyncToCloud(nextState);
-    notifyDiscordLogs("Novo Cupom de Desconto", `Cupom **${clean.code}** (-${clean.discountPercent}%) cadastrado no sistema por @${staffName}.`, staffName);
+    updateStoreAndSync(
+      prev => ({ ...prev, coupons: [...(prev.coupons || DEFAULT_STATE.coupons), { ...clean, id }] }),
+      "Novo Cupom de Desconto",
+      `Cupom **${clean.code}** (-${clean.discountPercent}%) cadastrado no sistema por @${staffName}.`,
+      staffName
+    );
   };
 
   const updateCoupon = (id, fields, staffName = "Admin / Staff") => {
     const clean = { ...fields };
     if (clean.code) clean.code = sanitizeString(clean.code.toUpperCase().replace(/\s+/g, ''), 30);
     if (clean.discountPercent) clean.discountPercent = Math.min(100, Math.max(1, Number(clean.discountPercent)));
-    markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      nextState = {
-        ...prev,
-        coupons: (prev.coupons || DEFAULT_STATE.coupons).map(c => c.id === id || c.code === id ? { ...c, ...clean } : c)
-      };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
-    forceSyncToCloud(nextState);
+    updateStoreAndSync(
+      prev => ({ ...prev, coupons: (prev.coupons || DEFAULT_STATE.coupons).map(c => c.id === id || c.code === id ? { ...c, ...clean } : c) })
+    );
   };
 
   const deleteCoupon = (id, staffName = "Admin / Staff") => {
     const target = (storeStateRef.current.coupons || DEFAULT_STATE.coupons).find(c => c.id === id || c.code === id);
-    markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      nextState = { ...prev, coupons: (prev.coupons || DEFAULT_STATE.coupons).filter(c => c.id !== id && c.code !== id) };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
-    forceSyncToCloud(nextState);
-    notifyDiscordLogs("Cupom Excluído", `O cupom **${target?.code || id}** foi removido por @${staffName}.`, staffName);
+    updateStoreAndSync(
+      prev => ({ ...prev, coupons: (prev.coupons || DEFAULT_STATE.coupons).filter(c => c.id !== id && c.code !== id) }),
+      "Cupom Excluído",
+      `O cupom **${target?.code || id}** foi removido por @${staffName}.`,
+      staffName
+    );
   };
 
   // Atualização de Status Online e Turno do Staff
   const updateStaffStatus = (staffId, status, turnNote = "") => {
-    markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      nextState = {
+    updateStoreAndSync(
+      prev => ({
         ...prev,
         staffUsers: ensureRequiredStaff((prev.staffUsers || DEFAULT_STATE.staffUsers).map(u => {
           if (u.id === staffId || u.username === staffId) {
@@ -894,35 +825,27 @@ export const StoreProvider = ({ children }) => {
           }
           return u;
         }))
-       };
-       storeStateRef.current = nextState;
-       return nextState;
-    });
-    forceSyncToCloud(nextState);
+      })
+    );
   };
 
   // Funções CRUD de Termos
   const updateTerms = (updatedTerms, staffName = "Admin / Staff") => {
-    markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      nextState = {
-        ...prev,
-        terms: updatedTerms
-      };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
-    forceSyncToCloud(nextState);
-    notifyDiscordLogs("Termos e Diretrizes Editados", `As políticas, regras ou termos da loja foram alterados no painel.`, staffName);
+    updateStoreAndSync(
+      prev => ({ ...prev, terms: updatedTerms }),
+      "Termos e Diretrizes Editados",
+      `As políticas, regras ou termos da loja foram alterados no painel.`,
+      staffName
+    );
   };
 
   const resetToDefaults = (staffName = "Admin / Staff") => {
-    markLocalUpdate();
-    setStoreState(DEFAULT_STATE);
-    storeStateRef.current = DEFAULT_STATE;
-    forceSyncToCloud(DEFAULT_STATE);
-    notifyDiscordLogs("Restauração Geral (Reset Padrão)", `A loja inteira foi restaurada para as configurações e produtos de fábrica por @${staffName}.`, staffName);
+    updateStoreAndSync(
+      () => DEFAULT_STATE,
+      "Restauração Geral (Reset Padrão)",
+      `A loja inteira foi restaurada para as configurações e produtos de fábrica por @${staffName}.`,
+      staffName
+    );
   };
 
   // --- Autenticação Discord (Simulada/Persistida) ---
@@ -961,13 +884,15 @@ export const StoreProvider = ({ children }) => {
         return overrideUrl.trim();
       }
       const cfg = storeStateRef.current?.config || DEFAULT_STATE.config;
-      if (webhookType === 'approval') return cfg.webhookApprovalUrl || DEFAULT_STATE.config.webhookApprovalUrl;
-      if (webhookType === 'rejected') return cfg.webhookRejectedUrl || DEFAULT_STATE.config.webhookRejectedUrl;
-      if (webhookType === 'logs') return cfg.webhookLogsUrl || DEFAULT_STATE.config.webhookLogsUrl;
-      if (webhookType === 'msgLogs') return cfg.webhookMsgLogsUrl || DEFAULT_STATE.config.webhookMsgLogsUrl;
-      if (webhookType === 'staffJoin') return cfg.webhookStaffJoinUrl || DEFAULT_STATE.config.webhookStaffJoinUrl;
-      return cfg.webhookUrl || DEFAULT_STATE.config.webhookUrl;
+      if (webhookType === 'approval') return (cfg.webhookApprovalUrl && cfg.webhookApprovalUrl.trim()) ? cfg.webhookApprovalUrl.trim() : DEFAULT_STATE.config.webhookApprovalUrl;
+      if (webhookType === 'rejected') return (cfg.webhookRejectedUrl && cfg.webhookRejectedUrl.trim()) ? cfg.webhookRejectedUrl.trim() : DEFAULT_STATE.config.webhookRejectedUrl;
+      if (webhookType === 'logs') return (cfg.webhookLogsUrl && cfg.webhookLogsUrl.trim()) ? cfg.webhookLogsUrl.trim() : DEFAULT_STATE.config.webhookLogsUrl;
+      if (webhookType === 'msgLogs') return (cfg.webhookMsgLogsUrl && cfg.webhookMsgLogsUrl.trim()) ? cfg.webhookMsgLogsUrl.trim() : DEFAULT_STATE.config.webhookMsgLogsUrl;
+      if (webhookType === 'staffJoin') return (cfg.webhookStaffJoinUrl && cfg.webhookStaffJoinUrl.trim()) ? cfg.webhookStaffJoinUrl.trim() : DEFAULT_STATE.config.webhookStaffJoinUrl;
+      return (cfg.webhookUrl && cfg.webhookUrl.trim()) ? cfg.webhookUrl.trim() : DEFAULT_STATE.config.webhookUrl;
     };
+
+    const targetUrlToSend = getDirectDiscordUrl();
 
     try {
       // PROXY BLINDADO: Envia para o backend (/api/webhook-proxy) preservando as URLs no servidor. Nenhuma URL do Discord é exposta na aba Network!
@@ -978,15 +903,14 @@ export const StoreProvider = ({ children }) => {
           type: webhookType,
           payload,
           contentText,
-          ...(overrideUrl ? { overrideUrl } : {})
+          overrideUrl: targetUrlToSend
         })
       });
 
       if (!res.ok) {
         console.warn(`⚠️ Proxy de Webhook (${res.status}) não respondeu. Realizando failover seguro e imediato ao Discord...`);
-        const directUrl = getDirectDiscordUrl();
-        if (directUrl && directUrl.includes('discord')) {
-          const directRes = await fetch(directUrl, {
+        if (targetUrlToSend && targetUrlToSend.includes('discord')) {
+          const directRes = await fetch(targetUrlToSend, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
@@ -1205,15 +1129,13 @@ export const StoreProvider = ({ children }) => {
     };
 
     markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      nextState = {
-        ...prev,
-        orders: [newOrder, ...(prev.orders || [])]
-      };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
+    const nextState = {
+      ...storeStateRef.current,
+      coupons: (storeStateRef.current.coupons || []).map(c => (appliedCoupon && c.code === appliedCoupon.code.toUpperCase()) ? { ...c, usedCount: (c.usedCount || 0) + 1 } : c),
+      orders: [newOrder, ...(storeStateRef.current.orders || [])]
+    };
+    storeStateRef.current = nextState;
+    setStoreState(nextState);
     forceSyncToCloud(nextState);
 
     // Notificar Webhook do Discord de Novo Pedido (MNSG LOGS) via Proxy Blindado
@@ -1237,9 +1159,9 @@ export const StoreProvider = ({ children }) => {
   const sendOrderProof = (orderId, proofImageUrl) => {
     const nowStr = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      const updatedOrders = (prev.orders || []).map(ord => {
+    const nextState = {
+      ...storeStateRef.current,
+      orders: (storeStateRef.current.orders || []).map(ord => {
         if (ord.id !== orderId) return ord;
         return {
           ...ord,
@@ -1257,14 +1179,13 @@ export const StoreProvider = ({ children }) => {
             }
           ]
         };
-      });
-      nextState = { ...prev, orders: updatedOrders };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
+      })
+    };
+    storeStateRef.current = nextState;
+    setStoreState(nextState);
     forceSyncToCloud(nextState);
 
-    const targetOrd = (storeState.orders || []).find(o => o.id === orderId);
+    const targetOrd = (storeStateRef.current.orders || []).find(o => o.id === orderId);
     if (targetOrd) {
       notifyDiscordWebhook({
         title: `📎 [NOVO COMPROVANTE PIX] • Pedido ${targetOrd.orderNumber}`,
@@ -1297,9 +1218,9 @@ export const StoreProvider = ({ children }) => {
 
     const nowStr = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      const updatedOrders = (prev.orders || []).map(ord => {
+    const nextState = {
+      ...storeStateRef.current,
+      orders: (storeStateRef.current.orders || []).map(ord => {
         if (ord.id !== orderId) return ord;
         return {
           ...ord,
@@ -1315,11 +1236,10 @@ export const StoreProvider = ({ children }) => {
             }
           ]
         };
-      });
-      nextState = { ...prev, orders: updatedOrders };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
+      })
+    };
+    storeStateRef.current = nextState;
+    setStoreState(nextState);
     forceSyncToCloud(nextState);
 
     const targetOrd = (storeStateRef.current.orders || []).find(o => o.id === orderId);
@@ -1347,9 +1267,9 @@ export const StoreProvider = ({ children }) => {
     const nowStr = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
     markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      const updatedOrders = (prev.orders || []).map(ord => {
+    const nextState = {
+      ...storeStateRef.current,
+      orders: (storeStateRef.current.orders || []).map(ord => {
         if (ord.id !== orderId) return ord;
         return {
           ...ord,
@@ -1366,11 +1286,10 @@ export const StoreProvider = ({ children }) => {
             }
           ]
         };
-      });
-      nextState = { ...prev, orders: updatedOrders };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
+      })
+    };
+    storeStateRef.current = nextState;
+    setStoreState(nextState);
     forceSyncToCloud(nextState);
 
     const targetOrd = (storeStateRef.current.orders || []).find(o => o.id === orderId);
@@ -1397,9 +1316,9 @@ export const StoreProvider = ({ children }) => {
     const nowStr = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
     markLocalUpdate();
-    let nextState;
-    setStoreState(prev => {
-      const updatedOrders = (prev.orders || []).map(ord => {
+    const nextState = {
+      ...storeStateRef.current,
+      orders: (storeStateRef.current.orders || []).map(ord => {
         if (ord.id !== orderId) return ord;
         return {
           ...ord,
@@ -1416,11 +1335,10 @@ export const StoreProvider = ({ children }) => {
             }
           ]
         };
-      });
-      nextState = { ...prev, orders: updatedOrders };
-      storeStateRef.current = nextState;
-      return nextState;
-    });
+      })
+    };
+    storeStateRef.current = nextState;
+    setStoreState(nextState);
     forceSyncToCloud(nextState);
 
     const targetOrd = (storeStateRef.current.orders || []).find(o => o.id === orderId);
