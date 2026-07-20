@@ -304,23 +304,24 @@ export const StoreProvider = ({ children }) => {
   const storeStateRef = useRef(storeState);
   storeStateRef.current = storeState;
 
+  const isInitialLoadRef = useRef(true);
+  const isLocalChangeRef = useRef(false);
+  const lastLocalUpdateRef = useRef(0);
+
   useEffect(() => {
     if (!sessionStorage.getItem('bloodstore_visited')) {
       sessionStorage.setItem('bloodstore_visited', 'true');
       const timer = setTimeout(() => {
-        markLocalUpdate();
+        // Incrementa contador de visitas silenciosamente sem ativar markLocalUpdate() para NÃO bloquear ou sobrescrever o Supabase no boot!
         setStoreState(prev => {
           const next = { ...prev, visitsCount: (prev.visitsCount || DEFAULT_STATE.visitsCount) + 1 };
           storeStateRef.current = next;
           return next;
         });
-      }, 1500);
+      }, 2000);
       return () => clearTimeout(timer);
     }
   }, []);
-
-  const isLocalChangeRef = useRef(false);
-  const lastLocalUpdateRef = useRef(0);
 
   const markLocalUpdate = () => {
     isLocalChangeRef.current = true;
@@ -331,23 +332,29 @@ export const StoreProvider = ({ children }) => {
   useEffect(() => {
     const applyCloudData = (data) => {
       if (!data) return;
-      // Blindagem Anti-Flicker & Anti-Reversão: Se houve modificação local nos últimos 6 segundos,
-      // IGNORAR dados da nuvem temporariamente para não piscar a tela nem reverter alterações locais!
-      if (Date.now() - lastLocalUpdateRef.current < 6000) {
-        return;
-      }
-      // Proteção Anti-Regressão de Dados: Se a nuvem retornar um registro com timestamp mais antigo que nossa última alteração local, NÃO sobrescrever! Re-sincronizar nossa versão mais recente.
-      if (data.updated_at && storeStateRef.current?.updated_at) {
-        const cloudTime = new Date(data.updated_at).getTime();
-        const localTime = new Date(storeStateRef.current.updated_at).getTime();
-        if (cloudTime < localTime - 1000) {
-          console.warn("⚠️ Supabase retornou dados mais antigos do que a última modificação local. Re-sincronizando estado mais recente para a nuvem...");
-          if (supabase && !isLocalChangeRef.current) {
-            forceSyncToCloud(storeStateRef.current);
-          }
+      // Se NÃO for o carregamento inicial (boot da página), aplicar blindagem Anti-Flicker e Anti-Regressão
+      if (!isInitialLoadRef.current) {
+        // Blindagem Anti-Flicker: Se houve modificação local nos últimos 6 segundos,
+        // IGNORAR dados da nuvem temporariamente para não piscar a tela nem reverter alterações locais!
+        if (Date.now() - lastLocalUpdateRef.current < 6000) {
           return;
         }
+        // Proteção Anti-Regressão de Dados: Se a nuvem retornar um registro mais antigo, re-sincronizar nossa versão mais recente.
+        if (data.updated_at && storeStateRef.current?.updated_at) {
+          const cloudTime = new Date(data.updated_at).getTime();
+          const localTime = new Date(storeStateRef.current.updated_at).getTime();
+          if (cloudTime < localTime - 1000) {
+            console.warn("⚠️ Supabase retornou dados mais antigos do que a última modificação local. Re-sincronizando estado mais recente para a nuvem...");
+            if (supabase && !isLocalChangeRef.current) {
+              forceSyncToCloud(storeStateRef.current);
+            }
+            return;
+          }
+        }
       }
+
+      // No boot ou ao receber novidades do Supabase, marcamos que o carregamento inicial foi concluído!
+      isInitialLoadRef.current = false;
 
       setStoreState(prev => {
         const mergedConfig = {
@@ -421,14 +428,18 @@ export const StoreProvider = ({ children }) => {
           .single();
 
         if (error && error.code !== 'PGRST116') {
+          isInitialLoadRef.current = false;
           return;
         }
 
         if (data) {
           applyCloudData(data);
+        } else {
+          isInitialLoadRef.current = false;
         }
       } catch (err) {
         console.error('❌ Erro na consulta Supabase:', err.message);
+        isInitialLoadRef.current = false;
       }
     };
 
@@ -504,9 +515,9 @@ export const StoreProvider = ({ children }) => {
       console.error("Erro ao salvar no LocalStorage:", e);
     }
 
-    // Se a alteração no storeState NÃO veio de uma ação local do usuário (ou seja, veio de uma sincronização de nuvem),
-    // NÃO reenviar para o servidor e NÃO disparar broadcast em loop infinito!
-    if (!isLocalChangeRef.current) {
+    // Se a alteração no storeState NÃO veio de uma ação local do usuário (ou seja, veio do boot ou sincronização),
+    // ou se ainda estamos no carregamento inicial da nuvem, NÃO reenviar para o servidor!
+    if (!isLocalChangeRef.current || isInitialLoadRef.current) {
       return;
     }
     isLocalChangeRef.current = false;
@@ -972,19 +983,18 @@ export const StoreProvider = ({ children }) => {
       });
 
       if (!res.ok) {
-        if (res.status === 404 || res.status === 502 || res.status === 503) {
-          console.warn(`⚠️ Proxy de Webhook (${res.status}) não disponível. Realizando failover seguro ao Discord...`);
-          const directUrl = getDirectDiscordUrl();
-          if (directUrl && directUrl.includes('discord')) {
-            const directRes = await fetch(directUrl, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify(payload)
-            });
-            if (directRes.ok || directRes.status === 204) return { success: true, mode: 'direct_fallback' };
-            const directErr = await directRes.text().catch(() => "");
-            return { success: false, status: directRes.status, error: directErr || "Falha no envio direto ao Discord" };
-          }
+        console.warn(`⚠️ Proxy de Webhook (${res.status}) não respondeu. Realizando failover seguro e imediato ao Discord...`);
+        const directUrl = getDirectDiscordUrl();
+        if (directUrl && directUrl.includes('discord')) {
+          const directRes = await fetch(directUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          });
+          if (directRes.ok || directRes.status === 204) return { success: true, mode: 'direct_fallback' };
+          const directErr = await directRes.text().catch(() => "");
+          console.error(`❌ Erro no envio direto ao Discord (HTTP ${directRes.status}):`, directErr);
+          return { success: false, status: directRes.status, error: directErr || "Falha no envio direto ao Discord" };
         }
         const errText = await res.text().catch(() => "");
         console.error(`❌ Erro no Webhook do Discord (HTTP ${res.status}):`, errText);
